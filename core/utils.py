@@ -10,6 +10,9 @@ def match_next_date(text):
     """(yyyy-mm-dd)"""
     return re.search(r"(\d{4})-(\d{2})-(\d{2})", text)
 
+def escape_markdown(text: str) -> str:
+    escape_chars = r'_[]()~`>#+-=|{}.!'
+    return ''.join(f'\\{char}' if char in escape_chars else char for char in text)
 
 def mach_dates(text):
     """- (yyyy-mm-dd)"""
@@ -70,7 +73,27 @@ def create_text(date, base_text):
 			for deadline in tasks_and_dates:
 				if date == deadline:
 					for task in tasks_and_dates[deadline]:
-						text += "\n" + task.replace("- [ ]", "\u2757")
+						text += "\n\n" + file.split('.')[0] + "\n" + task.replace("- [ ]", "\u2757")
+					print("Adding tasks")
+			print("Done")
+	print()
+	if text == base_text:
+		return ""
+	return text
+
+def create_text_undone(date, base_text):
+	text = base_text
+	data_files = os.listdir("data")
+	for file in data_files:
+		with open("data/" + file, "r") as f:
+			print(f"Reading {file}")
+			course_description = f.read()
+			f.close()
+			tasks_and_dates = find_tasks_and_dates(course_description)
+			for deadline in tasks_and_dates:
+				if date > deadline:
+					for task in tasks_and_dates[deadline]:
+						text += "\n\n" + escape_markdown(file.split('.')[0]) + "\n" + task.replace("- [ ]", "\u2757")
 					print("Adding tasks")
 			print("Done")
 	print()

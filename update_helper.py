@@ -8,7 +8,7 @@ from telegram.ext import (
 	ContextTypes,
 )
 from core.scraper import scrape_pads, get_pad_title
-from core.utils import create_text, update_pads
+from core.utils import create_text, update_pads, create_text_undone, escape_markdown
 
 with open("settings.json") as settings_file:
 	settings = json.load(settings_file)
@@ -18,9 +18,6 @@ def clear_data_folder():
 	for file in os.listdir("data"):
 		os.remove("data/" + file)
 
-def escape_markdown(text: str) -> str:
-    escape_chars = r'_[]()~`>#+-=|{}.!'
-    return ''.join(f'\\{char}' if char in escape_chars else char for char in text)
 
 def get_paduli_text():
 	padulati = json.load(open("padulati.json"))
@@ -206,6 +203,7 @@ async def info(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 async def check(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 	# Load settings
 	settings = json.load(open("settings.json"))
+	text_undone = settings["text_undone"]
 	text_today = settings["text_today"]
 	text_tomorrow = settings["text_tomorrow"]
 	parse_mode = settings["parse_mode"]
@@ -217,7 +215,7 @@ async def check(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 	# update pads
 	update_pads(urls)
 	# prepare text of today
-	text = create_text(today, text_today) + "\n\n" + create_text(tomorrow, text_tomorrow)
+	text = create_text(today, text_today) + "\n\n" + create_text(tomorrow, text_tomorrow) + "\n\n" + create_text_undone(today, text_undone)
 	if text == "\n\n":
 		await update.message.reply_text("No pending tasks found", parse_mode=parse_mode)
 		return

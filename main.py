@@ -1,6 +1,6 @@
 import json
 from datetime import datetime, timedelta
-from core.utils import create_text, update_pads
+from core.utils import create_text, update_pads, create_text_undone
 import telegram
 import asyncio
 
@@ -33,6 +33,11 @@ async def main():
 	if text2 != "":
 		for chat_id in chat_ids:
 			await bot.send_message(chat_id=chat_id, text=text2, parse_mode=parse_mode)
+	
+	text3 = create_text_undone(today, settings["text_undone"])
+	if text3 != "":
+		for chat_id in chat_ids:
+			await bot.send_message(chat_id=chat_id, text=text3, parse_mode=parse_mode)
 
 		
 
