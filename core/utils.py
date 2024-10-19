@@ -109,8 +109,6 @@ def update_pads(urls):
 		print("Done")
 
 def create_pad_text(course_name: str, site_name:str, days: list):
-	course_name = "Godot"
-
 	day_1 = days[0]
 
 	day_before = day_1 - timedelta(days=1)
@@ -160,5 +158,17 @@ def create_pad_text(course_name: str, site_name:str, days: list):
 			- [ ] 12:00 (_storia IG_) promemoria corso
 			- [ ] 12:00 (_messaggio TG_): luogo, ora, titolo lezione, timer, link alla stream"""
 
-	print(text)
+	return text
+
+def create_links(course_name, short_name, dates):
+	year = dates[0].year
+	links = f"""Link per {course_name}:
+    Link da mettere nel QR: https://poul.org/courses/{short_name}/?mtm_campaign={short_name}{year}&mtm_kwd=manifesto
+    Link short per il manifesto: go.poul.org/{short_name}{year}
+    Link da mettere nel TamTam: https://poul.org/courses/{short_name}/?mtm_campaign={short_name}{year}&mtm_kwd=tamtam
+    Link da usare su telegram: https://poul.org/courses/{short_name}/?mtm_campaign={short_name}{year}&mtm_kwd=tg
+    Link da usare su instagram: https://poul.org/courses/{short_name}/?mtm_campaign={short_name}{year}&mtm_kwd=ig
+    Link base: https://poul.org/courses/{short_name}/
+	"""
+	return links
 

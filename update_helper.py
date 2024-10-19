@@ -11,13 +11,13 @@ from telegram.ext import (
     filters, 
 )
 from core.scraper import scrape_pads, get_pad_title
-from core.utils import create_text, update_pads, create_text_undone, escape_markdown, create_pad_text
+from core.utils import create_text, update_pads, create_text_undone, escape_markdown, create_pad_text, create_links
 
 with open("settings.json") as settings_file:
 	settings = json.load(settings_file)
 parse_mode = settings["parse_mode"]
 # Define the conversation states
-ASK_COURSE_NAME, ASK_COURSE_SITE_NAME, ASK_DATES, CONFIRM, CREATE_PAD = range(5)
+ASK_COURSE_NAME, ASK_COURSE_SITE_NAME, ASK_DATES, CREATE_PAD = range(4)
 
 def clear_data_folder():
 	for file in os.listdir("data"):
@@ -237,42 +237,44 @@ async def ask_course_site_name(update: Update, context: ContextTypes.DEFAULT_TYP
 async def ask_dates(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 	context.user_data['course_site_name'] = update.message.text
 	context.user_data['dates'] = []
-	await update.message.reply_text(f"Great! Now let's add the dates of the course!\nPlease write the date of day {len(context.user_data['dates'] + 1)} in the format YYYY-MM-DD. \nType done whe you have finished adding dates.")
+	await update.message.reply_text(f"Great! Now let's add the dates of the course!\nPlease write the date of day {len(context.user_data['dates']) + 1} in the format YYYY MM DD. \nType done whe you have finished adding dates.")
 	return ASK_DATES
 
 async def get_all_dates(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 	date = update.message.text
 	if date.lower().replace(" ", "").replace("\n", "") == "done":
-		return CONFIRM
+		context.user_data['dates'] = sorted(context.user_data['dates'])
+		informations = f"Course name: {context.user_data['course_name']}\nCourse site name: {context.user_data['course_site_name']}\nDates:\n"
+		for date in context.user_data['dates']:
+			informations += f"   {date}\n"
+		informations += "Is this information correct?"
+		await update.message.reply_text(informations)
+		return CREATE_PAD
 	try:
-		datetime.strptime(date, "%Y-%m-%d")
+		datetime.strptime(date, "%Y %m %d")
 	except ValueError:
 		await update.message.reply_text("Invalid date format, please try again")
 		return ASK_DATES
 	context.user_data['dates'].append(date)
-	await update.message.reply_text("Got it! \nPlease write the date of day {len(context.user_data['dates'] + 1)} in the format YYYY-MM-DD. \nType done whe you have finished adding dates.")
-	return CONFIRM
-
-async def confirm(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-	context.user_data['dates'] = sorted(context.user_data['dates'])
-	informations = f"Course name: {context.user_data['course_name']}\nCourse site name: {context.user_data['course_site_name']}\nDates:\n"
-	for date in context.user_data['dates']:
-		informations += f"   {date}\n"
-	informations += "Is this information correct?"
-	await update.message.reply_text(informations)
-	return CREATE_PAD
+	await update.message.reply_text(f"Got it! \nPlease write the date of day {len(context.user_data['dates']) + 1} in the format YYYY MM DD. \nType done whe you have finished adding dates.")
+	return ASK_DATES
 
 async def create_text_for_pad(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 	confirmations = ["yes", "y", "ok", "sure", "confirm", "correct", "giusto", "si", "sì"]
 	if update.message.text.lower().replace(" ", "").replace("\n", "") in confirmations:
-		text = "Markdown pad to load and publish as \"editable\" on [pad.poul.org](https://pad.poul.org)\n\n"
-		await update.message.reply_text(text)
+		text = "*Markdown pad to load and publish as \"editable\" on pad.poul.org :*"
+		await update.message.reply_text(text, parse_mode=parse_mode)
+		for ids, date in enumerate(context.user_data['dates']):
+			context.user_data['dates'][ids] = datetime.strptime(date, "%Y %m %d")
+			
 		text = create_pad_text(context.user_data['course_name'], context.user_data['course_site_name'], context.user_data['dates'])
 		await update.message.reply_text(text)
-		return ConversationHandler.END
+
+		text = create_links(context.user_data['course_name'], context.user_data['course_site_name'], context.user_data['dates'])
+		await update.message.reply_text(text)
 	else:
 		await update.message.reply_text("Please start again")
-		return ConversationHandler.END
+	return ConversationHandler.END
 
 async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 	await update.message.reply_text("Operation cancelled")
@@ -326,11 +328,10 @@ def main():
 	app.add_handler(ConversationHandler(
         entry_points=[CommandHandler('create_pad', create_pad)],
         states={
-            ASK_COURSE_NAME: [MessageHandler(filters.Text, ask_course_site_name)],
-			ASK_COURSE_SITE_NAME: [MessageHandler(filters.Text, ask_dates)],
-			ASK_DATES: [MessageHandler(filters.Text, get_all_dates)],
-			CONFIRM: [MessageHandler(filters.Text, confirm)],
-			CREATE_PAD: [MessageHandler(filters.Text, create_text_for_pad)]
+            ASK_COURSE_NAME: [MessageHandler(filters.TEXT & ~filters.COMMAND, ask_course_site_name)],
+			ASK_COURSE_SITE_NAME: [MessageHandler(filters.TEXT & ~filters.COMMAND, ask_dates)],
+			ASK_DATES: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_all_dates)],
+			CREATE_PAD: [MessageHandler(filters.TEXT & ~filters.COMMAND, create_text_for_pad)]
         },
         fallbacks=[CommandHandler('cancel', cancel)]
     ))
