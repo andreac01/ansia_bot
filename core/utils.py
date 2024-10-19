@@ -5,6 +5,7 @@ import os
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__)))
 from scraper import scrape_pads
+from datetime import date, timedelta
 
 def match_next_date(text):
     """(yyyy-mm-dd)"""
@@ -107,5 +108,57 @@ def update_pads(urls):
 		scrape_pads(url)
 		print("Done")
 
+def create_pad_text(course_name: str, site_name:str, days: list):
+	course_name = "Godot"
 
+	day_1 = days[0]
+
+	day_before = day_1 - timedelta(days=1)
+	week_before = day_1 - timedelta(days=7)
+	two_weeks_bef = day_1 - timedelta(days=14)
+	three_weeks_bef = day_1 - timedelta(days=21)
+	month_before = day_1 - timedelta(days=28)
+	month_and_half_bef = day_1 - timedelta(days=42)
+
+	if ((day_1 - timedelta(days=7)).day < 8):
+		day_tamtam = (day_1 - timedelta(days=20))
+		day_tamtam = day_tamtam.replace(day=25)
+	else: 
+		day_tamtam = day_1.replace(day=8)
+
+	text = f"""# Corso {course_name}
+
+	### TODO: 
+	- ({month_and_half_bef}) - Elaborare proposte definitive delle date del corso (_responsabile corso_)(**_direttivo_** riceve e comunica a gruppo social (taggando responsabile gruppo social))
+			- [ ] Mandare mail a Poli per chiedere aule (**_direttivo_**) 
+				- Verificare necessità particolari come capienza/prese elettriche 
+				- Mail a eventileonardo@polimi.it o eventibovisa@polimi.it
+				- Dopo una settimana, senza risposta, solleciti telefonici fatti a Lorella Errico e Francesco Esposito (Lorella è stata più efficiente) (In generale cercare in rubrica: area infrastrutture e servizi - funzioni di staff)
+			- [ ] Creare pagina dell'edizione sul sito + creare messaggio con i link analytics (e lo short URL) + form di iscrizione (**_social_**)
+				- Nella descrizione va specificato: il link del form, se registriamo/streammiamo, dove trovare il link dello stream/rec, in che lingua è il talk, eventuali prerequisiti (anche cose da installare)"
+		- ({month_before}) Ottenere aule dal Poli (**_direttivo_**)
+			- [ ] Deadline manifesto completo per prima review sui gruppi (**_social_**) (sia su gruppo manifesti che su gruppo corso)
+			- [ ] Aggiornare pagina sul sito con aule (**_social_**)
+		- ({day_tamtam}) compilare PoliTamTam (**_direttivo_**)
+			- [ ] done
+		- ({three_weeks_bef}) Mandare in approvazione manifesto (**_direttivo_**)
+			- [ ] Deadline manifesto completo con footer (**_social_**)
+		- ({two_weeks_bef}) Stampare manifesti e appenderli (**_social_**)
+			- [ ] 3 A3 (di cui uno in bacheca e 2 per l'aula)
+			- [ ] 2 A4 Cartonato/plastificato (di cui uno da appendere in sede e uno da tenere per banchetti)
+		- ({week_before}) Posts IG+TG w/ manifesto del corso (**_social_**)
+			- [ ] Manifesto, orari, aule, descrizione, link al sito (**_social_**)
+			- [ ] Deadline design storie instagram (**_social_**)
+			- [ ] Deadline design thumbnail youtube (**_social_**)
+			- [ ] Creare live (**_social_**) (verificare comportamento feed su live unlisted)
+			- [ ] Schedule Posts telegram (12:00 del giorno del corso) (**_social_**)
+		- ({day_before}) Pubblicare storia IG (**_social_**)
+			- [ ] "ci vediamo domani"
+		"""
+	for day in days:
+		text += f"""- ({day}) Pubblicare storia IG (**_social_**)
+			- [ ] 12:00 (_storia IG_) promemoria corso
+			- [ ] 12:00 (_messaggio TG_): luogo, ora, titolo lezione, timer, link alla stream"""
+
+	print(text)
 

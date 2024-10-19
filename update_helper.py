@@ -6,13 +6,18 @@ from telegram.ext import (
 	ApplicationBuilder,
 	CommandHandler,
 	ContextTypes,
+	MessageHandler, 
+	ConversationHandler, 
+    filters, 
 )
 from core.scraper import scrape_pads, get_pad_title
-from core.utils import create_text, update_pads, create_text_undone, escape_markdown
+from core.utils import create_text, update_pads, create_text_undone, escape_markdown, create_pad_text
 
 with open("settings.json") as settings_file:
 	settings = json.load(settings_file)
 parse_mode = settings["parse_mode"]
+# Define the conversation states
+ASK_COURSE_NAME, ASK_COURSE_SITE_NAME, ASK_DATES, CONFIRM, CREATE_PAD = range(4)
 
 def clear_data_folder():
 	for file in os.listdir("data"):
@@ -199,7 +204,6 @@ async def info(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 	reply = f"Chat id: {cur_chatid}\nUser id: {cur_userid}"
 	await update.message.reply_text(reply, parse_mode=parse_mode)
 
-
 async def check(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 	# Load settings
 	settings = json.load(open("settings.json"))
@@ -220,12 +224,65 @@ async def check(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 		await update.message.reply_text("No pending tasks found", parse_mode=parse_mode)
 		return
 	await update.message.reply_text(text, parse_mode=parse_mode)
-		
+
+async def create_pad(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+	update.message.reply_text("Welcome to the pad creation utility!\nWhat's the name of the course you are making the pad for?")
+	return ASK_COURSE_NAME
+
+async def ask_course_site_name(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+	context.user_data['course_name'] = update.message.text
+	update.message.reply_text("Nice! \nWhat's the short name of the course used in the website?")
+	return ASK_COURSE_SITE_NAME
+
+async def ask_dates(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+	context.user_data['course_site_name'] = update.message.text
+	context.user_data['dates'] = []
+	update.message.reply_text(f"Great! Now let's add the dates of the course!\nPlease write the date of day {len(context.user_data['dates'] + 1)} in the format YYYY-MM-DD. \nType done whe you have finished adding dates.")
+	return ASK_DATES
+
+async def get_all_dates(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+	date = update.message.text
+	if date.lower().replace(" ", "").replace("\n", "") == "done":
+		return CONFIRM
+	try:
+		datetime.strptime(date, "%Y-%m-%d")
+	except ValueError:
+		update.message.reply_text("Invalid date format, please try again")
+		return ASK_DATES
+	context.user_data['dates'].append(date)
+	update.message.reply_text("Got it! \nPlease write the date of day {len(context.user_data['dates'] + 1)} in the format YYYY-MM-DD. \nType done whe you have finished adding dates.")
+	return CONFIRM
+
+async def confirm(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+	context.user_data['dates'] = sorted(context.user_data['dates'])
+	informations = f"Course name: {context.user_data['course_name']}\nCourse site name: {context.user_data['course_site_name']}\nDates:\n"
+	for date in context.user_data['dates']:
+		informations += f"   {date}\n"
+	informations += "Is this information correct?"
+	update.message.reply_text(informations)
+	return CREATE_PAD
+
+async def create_text_for_pad(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+	confirmations = ["yes", "y", "ok", "sure", "confirm", "correct", "giusto", "si", "sì"]
+	if update.message.text.lower().replace(" ", "").replace("\n", "") in confirmations:
+		text = "Markdown pad to load and publish as \"editable\" on [pad.poul.org](https://pad.poul.org)\n\n"
+		update.message.reply_text(text)
+		text = create_pad_text(context.user_data['course_name'], context.user_data['course_site_name'], context.user_data['dates'])
+		update.message.reply_text(text)
+		return ConversationHandler.END
+	else:
+		update.message.reply_text("Please start again")
+		return ConversationHandler.END
+
+async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+	update.message.reply_text("Operation cancelled")
+	return ConversationHandler.END
 
 async def help(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 	reply = "Commands:\n\n"
 	reply += "/check: \n   check for tasks\n"
 	reply += "/get\\_pads: \n   get the list of active pads\n"
+	reply += "/create\\_pad: \n   create the markdown for a new pad and links for social\n"
 	reply += "/add\\_pad \\[url\\_to\\_PUBLISHED\\_CodiMD]: \n   adds a new pad (admin required)\n"
 	reply += "/remove\\_pad \\[url\\_to\\_PUBLISHED\\_CodiMD]: \n   removes a pad (admin required)\n"
 	reply += "/get\\_paduli: \n   get the list of paduled people\n"
@@ -239,6 +296,9 @@ async def help(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 
 	await update.message.reply_text(reply, parse_mode=parse_mode)
+
+
+
 
 def main():
 	# Load settings from a JSON file
@@ -263,6 +323,17 @@ def main():
 	app.add_handler(CommandHandler("add_admin", add_admin))
 	app.add_handler(CommandHandler("check", check))
 	app.add_handler(CommandHandler("info", info))
+	app.add_handler(ConversationHandler(
+        entry_points=[CommandHandler('create_pad', create_pad)],
+        states={
+            ASK_COURSE_NAME: [MessageHandler(filters.Text, ask_course_site_name)],
+			ASK_COURSE_SITE_NAME: [MessageHandler(filters.Text, ask_dates)],
+			ASK_DATES: [MessageHandler(filters.Text, get_all_dates)],
+			CONFIRM: [MessageHandler(filters.Text, confirm)],
+			CREATE_PAD: [MessageHandler(filters.Text, create_text_for_pad)]
+        },
+        fallbacks=[CommandHandler('cancel', cancel)]
+    ))
 
 	
 	print("Handlers added")
