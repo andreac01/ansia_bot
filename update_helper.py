@@ -17,7 +17,7 @@ with open("settings.json") as settings_file:
 	settings = json.load(settings_file)
 parse_mode = settings["parse_mode"]
 # Define the conversation states
-ASK_COURSE_NAME, ASK_COURSE_SITE_NAME, ASK_DATES, CONFIRM, CREATE_PAD = range(4)
+ASK_COURSE_NAME, ASK_COURSE_SITE_NAME, ASK_DATES, CONFIRM, CREATE_PAD = range(5)
 
 def clear_data_folder():
 	for file in os.listdir("data"):
@@ -226,18 +226,18 @@ async def check(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 	await update.message.reply_text(text, parse_mode=parse_mode)
 
 async def create_pad(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-	update.message.reply_text("Welcome to the pad creation utility!\nWhat's the name of the course you are making the pad for?")
+	await update.message.reply_text("Welcome to the pad creation utility!\nWhat's the name of the course you are making the pad for?")
 	return ASK_COURSE_NAME
 
 async def ask_course_site_name(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 	context.user_data['course_name'] = update.message.text
-	update.message.reply_text("Nice! \nWhat's the short name of the course used in the website?")
+	await update.message.reply_text("Nice! \nWhat's the short name of the course used in the website?")
 	return ASK_COURSE_SITE_NAME
 
 async def ask_dates(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 	context.user_data['course_site_name'] = update.message.text
 	context.user_data['dates'] = []
-	update.message.reply_text(f"Great! Now let's add the dates of the course!\nPlease write the date of day {len(context.user_data['dates'] + 1)} in the format YYYY-MM-DD. \nType done whe you have finished adding dates.")
+	await update.message.reply_text(f"Great! Now let's add the dates of the course!\nPlease write the date of day {len(context.user_data['dates'] + 1)} in the format YYYY-MM-DD. \nType done whe you have finished adding dates.")
 	return ASK_DATES
 
 async def get_all_dates(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -247,10 +247,10 @@ async def get_all_dates(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
 	try:
 		datetime.strptime(date, "%Y-%m-%d")
 	except ValueError:
-		update.message.reply_text("Invalid date format, please try again")
+		await update.message.reply_text("Invalid date format, please try again")
 		return ASK_DATES
 	context.user_data['dates'].append(date)
-	update.message.reply_text("Got it! \nPlease write the date of day {len(context.user_data['dates'] + 1)} in the format YYYY-MM-DD. \nType done whe you have finished adding dates.")
+	await update.message.reply_text("Got it! \nPlease write the date of day {len(context.user_data['dates'] + 1)} in the format YYYY-MM-DD. \nType done whe you have finished adding dates.")
 	return CONFIRM
 
 async def confirm(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -259,23 +259,23 @@ async def confirm(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 	for date in context.user_data['dates']:
 		informations += f"   {date}\n"
 	informations += "Is this information correct?"
-	update.message.reply_text(informations)
+	await update.message.reply_text(informations)
 	return CREATE_PAD
 
 async def create_text_for_pad(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 	confirmations = ["yes", "y", "ok", "sure", "confirm", "correct", "giusto", "si", "sì"]
 	if update.message.text.lower().replace(" ", "").replace("\n", "") in confirmations:
 		text = "Markdown pad to load and publish as \"editable\" on [pad.poul.org](https://pad.poul.org)\n\n"
-		update.message.reply_text(text)
+		await update.message.reply_text(text)
 		text = create_pad_text(context.user_data['course_name'], context.user_data['course_site_name'], context.user_data['dates'])
-		update.message.reply_text(text)
+		await update.message.reply_text(text)
 		return ConversationHandler.END
 	else:
-		update.message.reply_text("Please start again")
+		await update.message.reply_text("Please start again")
 		return ConversationHandler.END
 
 async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-	update.message.reply_text("Operation cancelled")
+	await update.message.reply_text("Operation cancelled")
 	return ConversationHandler.END
 
 async def help(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
