@@ -5,69 +5,88 @@ import os
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__)))
 from scraper import scrape_pads
-from datetime import date, timedelta
-
-def match_next_date(text):
-    """(yyyy-mm-dd)"""
-    return re.search(r"(\d{4})-(\d{2})-(\d{2})", text)
+from datetime import timedelta
 
 def escape_markdown(text: str) -> str:
-    escape_chars = r'_[]()~`>#+-=|{}.!'
-    return ''.join(f'\\{char}' if char in escape_chars else char for char in text)
+	"""Escape all markdown special characters found in text.
+	args: tetx: text to escape
+	returns: escaped text
+	"""
+	escape_chars = r'_[]()~`>#+-=|{}.!'
+	return ''.join(f'\\{char}' if char in escape_chars else char for char in text)
 
-def mach_dates(text):
-    """- (yyyy-mm-dd)"""
-    matches = re.findall(r"- \((\d{4})-(\d{2})-(\d{2})\)", text)
-    return ["{}-{}-{}".format(year, month, day) for year, month, day in matches]
+def mach_dates(text: str) -> list:
+	"""matches dates in the format - (YYYY-MM-DD) in text.
+	args: text: text to search for dates
+	returns: list of dates in the format YYYY-MM-DD
+	"""
+	matches = re.findall(r"- \((\d{4})-(\d{2})-(\d{2})\)", text)
+	return ["{}-{}-{}".format(year, month, day) for year, month, day in matches]
 
 
-def find_tasks(text, return_done=False):
-    """- [ ]"""
-    pattern = re.compile(r"\s*- \[")
-    for line in text.split("\n"):
-        if pattern.match(line):
-            if return_done:
-                yield line
-            elif not line.startswith(" " * line.index("- [") + "- [x]"):
-                yield line
+def find_tasks(text:str, return_done=False) -> list:
+	"""Finds tasks in the format - [ ] in text.
+	args: text: text to search for tasks
+	returns: list of tasks
+	"""
+	pattern = re.compile(r"\s*- \[")
+	for line in text.split("\n"):
+		if pattern.match(line):
+			if return_done:
+				yield line
+			elif not line.startswith(" " * line.index("- [") + "- [x]"):
+				yield line
 
-def substitute_recipients(text, recipients_file="padulati.json"):
-    """(**_direttivo_**) to @direttivo"""
-    with open(recipients_file) as f:
-        recipients = json.load(f)
+def substitute_recipients(text: str, recipients_file="padulati.json") -> str:
+	"""Substitute recipients in the format **_recipient_** with the corresponding usernames.
+	args: text: text to substitute recipients in
+	recipients_file: file containing the recipients usernames
+	returns: text with recipients substituted
+	"""
+	with open(recipients_file) as f:
+		recipients = json.load(f)
 
-    for recipient in recipients:
-        tags = ""
-        for username in recipients[recipient]:
-            tags += f"@{escape_markdown(username)} "
-        if tags == "":
-            tags = " "
-        
-        text = text.replace("**_" + recipient + "_**", tags[:-1])
-    return text
+	for recipient in recipients:
+		tags = ""
+		for username in recipients[recipient]:
+			tags += f"@{escape_markdown(username)} "
+		if tags == "":
+			tags = " "
+		
+		text = text.replace("**_" + recipient + "_**", tags[:-1])
+	return text
 
-def find_tasks_and_dates(text, return_done=False):
-    date_to_task = {}
-    text = substitute_recipients(text)
+def find_tasks_and_dates(text: str, return_done=False) -> dict:
+	"""Finds tasks and dates in the format - (YYYY-MM-DD) in text.
+	args: text: text to search for tasks and dates
+	returns: dictionary with dates as keys and tasks as values
+	"""
+	date_to_task = {}
+	text = substitute_recipients(text)
 
-    dates = mach_dates(text)
-    for idx, date in enumerate(dates):
+	dates = mach_dates(text)
+	for idx, date in enumerate(dates):
 
-        cur_date_text = text.split(dates[idx])[1]
-        if idx != len(dates) - 1:
-            cur_date_text = cur_date_text.split(dates[idx + 1])[0]
-        tasks = find_tasks(cur_date_text, return_done)
+		cur_date_text = text.split(dates[idx])[1]
+		if idx != len(dates) - 1:
+			cur_date_text = cur_date_text.split(dates[idx + 1])[0]
+		tasks = find_tasks(cur_date_text, return_done)
 
-        if tasks:
-            date_to_task[date] = tasks
-    return date_to_task
+		if tasks:
+			date_to_task[date] = tasks
+	return date_to_task
 
-def create_text(date, base_text):
+def create_text(date: str, base_text: str) -> str:
+	"""Creates a text with the tasks of the day.
+	args: date: date to search for tasks
+	base_text: text to append the tasks to
+	returns: markdown text with the tasks of the day
+	"""
+
 	text = base_text
 	data_files = os.listdir("data")
 	for file in data_files:
 		with open("data/" + file, "r") as f:
-			print(f"Reading {file}")
 			course_description = f.read()
 			f.close()
 			tasks_and_dates = find_tasks_and_dates(course_description)
@@ -75,19 +94,20 @@ def create_text(date, base_text):
 				if date == deadline:
 					for task in tasks_and_dates[deadline]:
 						text += "\n\n" + file.split('.')[0].replace("_", " ") + "\n" + task.replace("- [ ]", "\u2757")
-					print("Adding tasks")
-			print("Done")
-	print()
 	if text == base_text:
 		return ""
 	return text
 
-def create_text_undone(date, base_text):
+def create_text_undone(date: str, base_text: str) -> str:
+	"""Creates a text with the task that were not completed before date.
+	args: date: last date to search for tasks
+	base_text: text to append the tasks to
+	returns: markdown text with the undone tasks
+	"""
 	text = base_text
 	data_files = os.listdir("data")
 	for file in data_files:
 		with open("data/" + file, "r") as f:
-			print(f"Reading {file}")
 			course_description = f.read()
 			f.close()
 			tasks_and_dates = find_tasks_and_dates(course_description)
@@ -95,20 +115,26 @@ def create_text_undone(date, base_text):
 				if date > deadline:
 					for task in tasks_and_dates[deadline]:
 						text += "\n\n" + file.split('.')[0].replace("_", " ") + "\n" + task.replace("- [ ]", "\u2757")
-					print("Adding tasks")
-			print("Done")
-	print()
 	if text == base_text:
 		return ""
 	return text
 
-def update_pads(urls):
-	for url in urls:
-		print(f"Scraping {url}")
-		scrape_pads(url)
-		print("Done")
+def update_pads(urls: list) -> None:
+	"""Updates the pads with the latest information. By scraping the data from the urls.
+	args: urls: list of urls to scrape
+	"""
 
-def create_pad_text(course_name: str, site_name:str, days: list):
+	for url in urls:
+		scrape_pads(url)
+
+def create_pad_text(course_name: str, site_name:str, days: list) -> str:
+	"""Creates a text with the tasks for the course.
+	args: course_name: name of the course
+	site_name: short name of the course used in the website url
+	days: list of dates
+	returns: markdown text with the tasks for the course
+	"""
+
 	day_1 = days[0]
 
 	day_before = day_1 - timedelta(days=1)
@@ -160,15 +186,21 @@ def create_pad_text(course_name: str, site_name:str, days: list):
 
 	return text
 
-def create_links(course_name, short_name, dates):
+def create_links(course_name: str, short_name: str, dates: list) -> str:
+	"""Creates links for the course.
+	args: course_name: name of the course
+	short_name: short name of the course used in the website url
+	dates: list of dates
+	returns: links for the course
+	"""
 	year = dates[0].year
 	links = f"""Link per {course_name}:
-    Link da mettere nel QR: https://poul.org/courses/{short_name}/?mtm_campaign={short_name}{year}&mtm_kwd=manifesto
-    Link short per il manifesto: go.poul.org/{short_name}{year}
-    Link da mettere nel TamTam: https://poul.org/courses/{short_name}/?mtm_campaign={short_name}{year}&mtm_kwd=tamtam
-    Link da usare su telegram: https://poul.org/courses/{short_name}/?mtm_campaign={short_name}{year}&mtm_kwd=tg
-    Link da usare su instagram: https://poul.org/courses/{short_name}/?mtm_campaign={short_name}{year}&mtm_kwd=ig
-    Link base: https://poul.org/courses/{short_name}/
+	Link da mettere nel QR: https://poul.org/courses/{short_name}/?mtm_campaign={short_name}{year}&mtm_kwd=manifesto
+	Link short per il manifesto: go.poul.org/{short_name}{year}
+	Link da mettere nel TamTam: https://poul.org/courses/{short_name}/?mtm_campaign={short_name}{year}&mtm_kwd=tamtam
+	Link da usare su telegram: https://poul.org/courses/{short_name}/?mtm_campaign={short_name}{year}&mtm_kwd=tg
+	Link da usare su instagram: https://poul.org/courses/{short_name}/?mtm_campaign={short_name}{year}&mtm_kwd=ig
+	Link base: https://poul.org/courses/{short_name}/
 	"""
 	return links
 

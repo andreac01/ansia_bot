@@ -4,7 +4,11 @@ import time
 import os
 
 # Function to scrape content from the given URL
-def scrape_pads(url, relative_path='../data'):
+def scrape_pads(url: str, relative_path='../data') -> None:
+	"""Scrape the content of a CodiMD pad and save it to a file.
+	args: url: URL of the CodiMD pad
+	relative_path: relative path to save the content
+	"""
 	try:
 		response = requests.get(url)
 		# Check if request was successful
@@ -24,15 +28,17 @@ def scrape_pads(url, relative_path='../data'):
 				os.makedirs(save_path)
 			with open(f'{save_path}/{title}.md', 'w') as f:
 				f.write(content)
-				print(f"Content saved to {save_path}/{title}.md")
-
 		else:
 			print(f"Failed to retrieve page. Status code: {response.status_code}")
 
 	except Exception as e:
 		print(f"An error occurred during: {e}")
 
-def get_pad_title(url):
+def get_pad_title(url: str) -> str:
+	"""Get the title of a CodiMD pad.
+	args: url: URL of the CodiMD pad
+	returns: title of the pad
+	"""
 	response = requests.get(url)
 	if response.status_code == 200:
 		soup = BeautifulSoup(response.text, 'html.parser')

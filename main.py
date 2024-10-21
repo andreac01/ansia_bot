@@ -6,8 +6,9 @@ import asyncio
 
 
 
-
 async def main():
+	"""Main function to update the pads and send the messages to the chat_ids."""
+	
 	# Load settings
 	settings = json.load(open("settings.json"))
 	bot = telegram.Bot(token=settings["token_bot"])

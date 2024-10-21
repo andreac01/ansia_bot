@@ -19,12 +19,16 @@ parse_mode = settings["parse_mode"]
 # Define the conversation states
 ASK_COURSE_NAME, ASK_COURSE_SITE_NAME, ASK_DATES, CREATE_PAD = range(4)
 
-def clear_data_folder():
+def clear_data_folder() -> None:
+	"""Clears the data folder."""
 	for file in os.listdir("data"):
 		os.remove("data/" + file)
 
 
-def get_paduli_text():
+def get_paduli_text() -> str:
+	"""Get the list of the paduled people.
+	returns: markdown text with the paduled people
+	"""
 	padulati = json.load(open("padulati.json"))
 	reply = "Currently paduled:\n"
 	for group in padulati:
@@ -34,7 +38,10 @@ def get_paduli_text():
 		reply += "\n"
 	return reply
 
-def get_urls_text():
+def get_urls_text() -> str:
+	"""Get the list of the active pads.
+	returns: text with the active pads
+	"""
 	with open("settings.json") as settings_file:
 		settings = json.load(settings_file)
 	urls = settings["urls"]
@@ -45,6 +52,10 @@ def get_urls_text():
 	return reply
 
 def check_admin(update: Update) -> bool:
+	"""Check if the user is an admin.
+	args: update: telegram update
+	returns: True if the user is an admin, False otherwise
+	"""
 	usernames = json.load(open("allowed_users.json"))
 	if update.message.from_user.username in usernames:
 		return True
@@ -52,6 +63,10 @@ def check_admin(update: Update) -> bool:
 		return False
 
 async def padula(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+	"""Padula a new person.
+	args: update: telegram update
+	context: telegram context
+	returns: None"""
 	padulati = json.load(open("padulati.json"))
 	if not check_admin(update):
 		await update.message.reply_text("You are not allowed to use this command", parse_mode=parse_mode)
@@ -88,6 +103,11 @@ async def padula(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 			await update.message.reply_text(reply, parse_mode=parse_mode)
 
 async def add_pad(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+	"""Add a new pad.
+	args: update: telegram update
+	context: telegram context
+	returns: None
+	"""
 	if not check_admin(update):
 		await update.message.reply_text("You are not allowed to use this command", parse_mode=parse_mode)
 		return
@@ -114,6 +134,11 @@ async def add_pad(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 		await update.message.reply_text("Pad added succesfully", parse_mode=parse_mode)
 
 async def remove_pad(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+	"""Remove a pad.
+	args: update: telegram update
+	context: telegram context
+	returns: None
+	"""
 	if not check_admin(update):
 		await update.message.reply_text("You are not allowed to use this command", parse_mode=parse_mode)
 		return
@@ -141,6 +166,11 @@ async def remove_pad(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
 			await update.message.reply_text(reply, parse_mode=parse_mode)
 
 async def add_chat(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+	"""Add current chat to the update list. Chat will receive updates daily updates from main.py function.
+	args: update: telegram update
+	context: telegram context
+	returns: None
+	"""
 	if not check_admin(update):
 		await update.message.reply_text("You are not allowed to use this command", parse_mode=parse_mode)
 		return
@@ -158,6 +188,11 @@ async def add_chat(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 	await update.message.reply_text("Chat added succesfully", parse_mode=parse_mode)
 
 async def remove_chat(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+	"""Remove a chat from the update list. Chat will not receive updates from main.py function.
+	args: update: telegram update
+	context: telegram context
+	returns: None
+	"""
 	if not check_admin(update):
 		await update.message.reply_text("You are not allowed to use this command", parse_mode=parse_mode)
 		return
@@ -174,14 +209,29 @@ async def remove_chat(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
 		await update.message.reply_text(f"Chatid {chatid} not found", parse_mode=parse_mode)
 
 async def get_paduli(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+	"""Get the list of the paduled people.
+	args: update: telegram update
+	context: telegram context
+	returns: None
+	"""
 	reply = get_paduli_text()
 	await update.message.reply_text(reply, parse_mode=parse_mode)
 
 async def get_pads(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+	"""Get the list of the active pads urls.
+	args: update: telegram update
+	context: telegram context
+	returns: None
+	"""
 	reply = get_urls_text()
 	await update.message.reply_text(reply, parse_mode=parse_mode)
 
 async def add_admin(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+	"""Add a new admin.
+	args: update: telegram update
+	context: telegram context
+	returns: None
+	"""
 	if not check_admin(update):
 		await update.message.reply_text("You are not allowed to use this command", parse_mode=parse_mode)
 		return
@@ -199,12 +249,25 @@ async def add_admin(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 		await update.message.reply_text("Admin added succesfully", parse_mode=parse_mode)
 
 async def info(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-	cur_chatid = update.message.chat_id
-	cur_userid = update.message.from_user.id
-	reply = f"Chat id: {cur_chatid}\nUser id: {cur_userid}"
-	await update.message.reply_text(reply, parse_mode=parse_mode)
+	"""Get info about the bot. The info is read from the second part of the README.md file.
+	args: update: telegram update
+	context: telegram context
+	returns: None
+	"""
+	with open("README.md") as readme:
+		readme_string = readme.read()
+		print(readme_string)
+		try:
+			await update.message.reply_text(escape_markdown(readme_string), parse_mode=parse_mode)
+		except Exception as e:
+			await update.message.reply_text(f"Error: {e}")
 
 async def check(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+	"""Check for tasks and send the messages to the chat_ids.
+	args: update: telegram update
+	context: telegram context
+	returns: None
+	"""
 	# Load settings
 	settings = json.load(open("settings.json"))
 	text_undone = settings["text_undone"]
@@ -226,21 +289,41 @@ async def check(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 	await update.message.reply_text(text, parse_mode=parse_mode)
 
 async def create_pad(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+	"""Create a new pad. The conversation is divided in 4 steps: ask_course_name, ask_course_site_name, ask_dates, create_pad.
+	args: update: telegram update
+	context: telegram context
+	returns: ASK_COURSE_NAME
+	"""
 	await update.message.reply_text("Welcome to the pad creation utility!\nWhat's the name of the course you are making the pad for?")
 	return ASK_COURSE_NAME
 
 async def ask_course_site_name(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+	"""Ask the short name of the course used in the website.
+	args: update: telegram update
+	context: telegram context
+	returns: ASK_COURSE_SITE_NAME
+	"""
 	context.user_data['course_name'] = update.message.text
 	await update.message.reply_text("Nice! \nWhat's the short name of the course used in the website?")
 	return ASK_COURSE_SITE_NAME
 
 async def ask_dates(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+	"""Ask the dates of the course.
+	args: update: telegram update
+	context: telegram context
+	returns: ASK_DATES
+	"""
 	context.user_data['course_site_name'] = update.message.text
 	context.user_data['dates'] = []
 	await update.message.reply_text(f"Great! Now let's add the dates of the course!\nPlease write the date of day {len(context.user_data['dates']) + 1} in the format YYYY MM DD. \nType done whe you have finished adding dates.")
 	return ASK_DATES
 
 async def get_all_dates(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+	"""Get all the dates of the course.
+	args: update: telegram update
+	context: telegram context
+	returns: ASK_DATES
+	"""
 	date = update.message.text
 	if date.lower().replace(" ", "").replace("\n", "") == "done":
 		context.user_data['dates'] = sorted(context.user_data['dates'])
@@ -260,6 +343,11 @@ async def get_all_dates(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
 	return ASK_DATES
 
 async def create_text_for_pad(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+	"""Create the text for the pad.
+	args: update: telegram update
+	context: telegram context
+	returns: ConversationHandler.END
+	"""
 	confirmations = ["yes", "y", "ok", "sure", "confirm", "correct", "giusto", "si", "sì"]
 	if update.message.text.lower().replace(" ", "").replace("\n", "") in confirmations:
 		text = "*Markdown pad to load and publish as \"editable\" on pad.poul.org :*"
@@ -277,10 +365,20 @@ async def create_text_for_pad(update: Update, context: ContextTypes.DEFAULT_TYPE
 	return ConversationHandler.END
 
 async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+	"""Exit the conversation.
+	args: update: telegram update
+	context: telegram context
+	returns: Conversation
+	"""
 	await update.message.reply_text("Operation cancelled")
 	return ConversationHandler.END
 
 async def help(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+	"""Get the help message.
+	args: update: telegram update
+	context: telegram context
+	returns: None
+	"""
 	reply = "Commands:\n\n"
 	reply += "/check: \n   check for tasks\n"
 	reply += "/get\\_pads: \n   get the list of active pads\n"
@@ -292,7 +390,7 @@ async def help(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 	reply += "/add\\_chat: \n   add current chat id to update list\n"
 	reply += "/remove\\_chat: \n   removes current chat id from update list (admin required)\n"
 	reply += "/add\\_admin \\[tg\\_username]: \n   adds a new admin (admin required)\n"
-	reply += "/info: \n   get info about the current chat id and user id\n"
+	reply += "/info: \n   get info about this bot\n"
 	reply += "/help: \n   get this message\n"
 	reply += "/start: \n   get this message\n"
 
