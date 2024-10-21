@@ -56,7 +56,12 @@ If you are a memeber of POuL you can directly ask me the token of @poul_ansia_bo
 ### 1. Clone the repository
 
 Clone the repository on your device move to your designated <base_directory> with the following command:
+
 `git clone https://github.com/andreac01/ansia_bot.git`
+
+In settings.json you should place your bot token. 
+
+In main.sh you should properly set <base_directory>
 
 ### 2. Environment
 
@@ -71,12 +76,14 @@ cd <base_directory>/ansia_bot &&
 pip install -r requirements.txt
 ```
 
+Remember to change <base_directory> properly
+
 ### 3. Run bot interface
 
 After having configured the environment we can run the main interactive interface of the bot. To properly do so run the following commands:
 
 ```
-nohup python request_handler.py &>
+nohup python3 request_handler.py &>
 ```
 
 nohup ensures that the program will run even after disconnection and & discards outputs.
@@ -90,6 +97,8 @@ crontab -e
 Then add this entry at the end of the file that will open
 
 `0 8 * * * <base_directory>/ansia_bot/main.sh`
+
+Remember to change <base_directory> properly
 
 ### 5. Padula and set admins
 
