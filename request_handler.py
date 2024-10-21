@@ -56,7 +56,7 @@ def check_admin(update: Update) -> bool:
 	args: update: telegram update
 	returns: True if the user is an admin, False otherwise
 	"""
-	usernames = json.load(open("allowed_users.json"))
+	usernames = json.load(open("admins.json"))
 	if update.message.from_user.username in usernames:
 		return True
 	else:
@@ -93,10 +93,13 @@ async def padula(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 			else:
 				await update.message.reply_text(f"Succesfully removed {escape_markdown(old_username)}", parse_mode=parse_mode)
 		if old_username == "_":
+			if new_username in padulati[group]:
+				await update.message.reply_text(f"{escape_markdown(new_username)} already paduled", parse_mode=parse_mode)
+				return
 			padulati[group].append(new_username)
 			flag = True
 		if flag:
-			json.dump(padulati, open("padulati.json", "w"))
+			json.dump(padulati, open("padulati.json", "w"), indent=4)
 			await update.message.reply_text(f"Succesfully paduled {escape_markdown(new_username)}", parse_mode=parse_mode)
 		else:
 			reply = f"Username {escape_markdown(old_username)} not found\n\n" + get_paduli_text()
@@ -130,7 +133,7 @@ async def add_pad(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 		urls = settings["urls"]
 		urls.append(url)
 		settings["urls"] = urls
-		json.dump(settings, open("settings.json", "w"))
+		json.dump(settings, open("settings.json", "w"), indent=4)
 		await update.message.reply_text("Pad added succesfully", parse_mode=parse_mode)
 
 async def remove_pad(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -157,7 +160,7 @@ async def remove_pad(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
 		if url in urls:
 			urls.remove(url)
 			settings["urls"] = urls
-			json.dump(settings, open("settings.json", "w"))
+			json.dump(settings, open("settings.json", "w"), indent=4)
 			clear_data_folder()
 			update_pads(urls)
 			await update.message.reply_text("Pad removed succesfully", parse_mode=parse_mode)
@@ -184,7 +187,7 @@ async def add_chat(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 		return
 	chat_ids.append(chatid)
 	settings["chat_ids"] = chat_ids
-	json.dump(settings, open("settings.json", "w"))
+	json.dump(settings, open("settings.json", "w"), indent=4)
 	await update.message.reply_text("Chat added succesfully", parse_mode=parse_mode)
 
 async def remove_chat(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -203,7 +206,7 @@ async def remove_chat(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
 	if chatid in chat_ids:
 		chat_ids.remove(chatid)
 		settings["chat_ids"] = chat_ids
-		json.dump(settings, open("settings.json", "w"))
+		json.dump(settings, open("settings.json", "w"), indent=4)
 		await update.message.reply_text("Chat removed succesfully", parse_mode=parse_mode)
 	else:
 		await update.message.reply_text(f"Chatid {chatid} not found", parse_mode=parse_mode)
@@ -243,24 +246,13 @@ async def add_admin(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 	else:
 		username = text[1]
 
-		admins = json.load(open("allowed_users.json"))
+		admins = json.load(open("admins.json"))
+		if username in admins:
+			await update.message.reply_text("User already admin", parse_mode=parse_mode)
+			return
 		admins.append(username)
-		json.dump(admins, open("allowed_users.json", "w"))
+		json.dump(admins, open("admins.json", "w"), indent=4)
 		await update.message.reply_text("Admin added succesfully", parse_mode=parse_mode)
-
-async def info(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-	"""Get info about the bot. The info is read from the second part of the README.md file.
-	args: update: telegram update
-	context: telegram context
-	returns: None
-	"""
-	with open("README.md") as readme:
-		readme_string = readme.read()
-		print(readme_string)
-		try:
-			await update.message.reply_text(escape_markdown(readme_string), parse_mode=parse_mode)
-		except Exception as e:
-			await update.message.reply_text(f"Error: {e}")
 
 async def check(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 	"""Check for tasks and send the messages to the chat_ids.
@@ -283,10 +275,10 @@ async def check(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 	update_pads(urls)
 	# prepare text of today
 	text = create_text(today, text_today) + "\n\n" + create_text(tomorrow, text_tomorrow) + "\n\n" + create_text_undone(today, text_undone)
-	if text == "\n\n":
+	if text == "\n\n\n\n":
 		await update.message.reply_text("No pending tasks found", parse_mode=parse_mode)
 		return
-	await update.message.reply_text(text, parse_mode=parse_mode)
+	await update.message.reply_text(text.replace("\n\n\n\n", "\n\n"), parse_mode=parse_mode)
 
 async def create_pad(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 	"""Create a new pad. The conversation is divided in 4 steps: ask_course_name, ask_course_site_name, ask_dates, create_pad.
@@ -379,7 +371,7 @@ async def help(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 	context: telegram context
 	returns: None
 	"""
-	reply = "Commands:\n\n"
+	reply = "*Commands:*\n"
 	reply += "/check: \n   check for tasks\n"
 	reply += "/get\\_pads: \n   get the list of active pads\n"
 	reply += "/create\\_pad: \n   create the markdown for a new pad and links for social\n"
@@ -390,9 +382,7 @@ async def help(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 	reply += "/add\\_chat: \n   add current chat id to update list\n"
 	reply += "/remove\\_chat: \n   removes current chat id from update list (admin required)\n"
 	reply += "/add\\_admin \\[tg\\_username]: \n   adds a new admin (admin required)\n"
-	reply += "/info: \n   get info about this bot\n"
 	reply += "/help: \n   get this message\n"
-	reply += "/start: \n   get this message\n"
 
 
 	await update.message.reply_text(reply, parse_mode=parse_mode)
@@ -405,7 +395,7 @@ def main():
 	with open("settings.json") as settings_file:
 		settings = json.load(settings_file)
 
-	token = settings["token_bot"]
+	token = settings["token"]
 
 	# Create the application
 	app = ApplicationBuilder().token(token).build()
@@ -422,7 +412,6 @@ def main():
 	app.add_handler(CommandHandler("get_pads", get_pads))
 	app.add_handler(CommandHandler("add_admin", add_admin))
 	app.add_handler(CommandHandler("check", check))
-	app.add_handler(CommandHandler("info", info))
 	app.add_handler(ConversationHandler(
         entry_points=[CommandHandler('create_pad', create_pad)],
         states={

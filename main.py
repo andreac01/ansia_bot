@@ -11,7 +11,7 @@ async def main():
 	
 	# Load settings
 	settings = json.load(open("settings.json"))
-	bot = telegram.Bot(token=settings["token_bot"])
+	bot = telegram.Bot(token=settings["token"])
 	text_today = settings["text_today"]
 	text_tomorrow = settings["text_tomorrow"]
 	parse_mode = settings["parse_mode"]
