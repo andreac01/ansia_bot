@@ -28,20 +28,20 @@ The code is divided into two parts:
 
 ## Files organization
 
-ansia_bot/  			~ root
-├── admins.json 	~ contains the list of admins (to be filled)
-├── core  				~ contains code utilities
-│   ├── scraper.py  	~ handles updates and scraping of pads hosted on pad.poul.org
-│   └── utils.py  		~ miscellanea of most function to handle data and text generation
-├── data 				~ contains local copies of the traced pads
-│   └── 
-├── main.py 			~ send notifications to all traced chats when executed
-├── main.sh  			~ used to execute main via a cronjob
-├── padulati.json  		~ list of roles and people people to tag (to be filled) 
-├── README.md  			~ this file
-├── requirements.txt  	~ python dependecies 
-├── request_handler.py	~ handler of the telegram interface 
-└── settings.json		~ settings of the bot (to be filled)
+ansia_bot/  			~ root <br>
+├── admins.json 	~ contains the list of admins (to be filled)  <br>
+├── core  				~ contains code utilities <br>
+│   ├── scraper.py  	~ handles updates and scraping of pads hosted on pad.poul.org <br>
+│   └── utils.py  		~ miscellanea of most function to handle data and text generation <br>
+├── data 				~ contains local copies of the traced pads <br>
+│   └──  <br>
+├── main.py 			~ send notifications to all traced chats when executed <br>
+├── main.sh  			~ used to execute main via a cronjob <br>
+├── padulati.json  		~ list of roles and people people to tag (to be filled) <br> 
+├── README.md  			~ this file <br>
+├── requirements.txt  	~ python dependecies  <br>
+├── request_handler.py	~ handler of the telegram interface  <br>
+└── settings.json		~ settings of the bot (to be filled) <br>
 
 ## setup
 
@@ -65,7 +65,7 @@ In order to function out of the box it is assumed that the host has a properly c
 ```
 mkdir ~/venvs &&
 cd ~/venvs &&
-python -m venv telegram_venv &&
+python3 -m venv telegram_venv &&
 source ./telegram_venv/bin/activate &&
 cd <base_directory>/ansia_bot &&
 pip install -r requirements.txt
@@ -76,7 +76,7 @@ pip install -r requirements.txt
 After having configured the environment we can run the main interactive interface of the bot. To properly do so run the following commands:
 
 ```
-nohup python update_helper.py &
+nohup python request_handler.py &>
 ```
 
 nohup ensures that the program will run even after disconnection and & discards outputs.
@@ -88,7 +88,8 @@ To periodically execute the main function a crontab is needed. Run:
 crontab -e
 ```
 Then add this entry at the end of the file that will open
-0 8 * * * <base_directory>/ansia_bot/main.sh
+
+`0 8 * * * <base_directory>/ansia_bot/main.sh`
 
 ### 5. Padula and set admins
 
