@@ -39,11 +39,11 @@ def substitute_recipients(text, recipients_file="padulati.json"):
     for recipient in recipients:
         tags = ""
         for username in recipients[recipient]:
-            tags += f"@{username} "
+            tags += f"@{escape_markdown(username)} "
         if tags == "":
             tags = " "
         
-        text = text.replace("*_" + recipient + "_*", tags[:-1])
+        text = text.replace("**_" + recipient + "_**", tags[:-1])
     return text
 
 def find_tasks_and_dates(text, return_done=False):
@@ -74,7 +74,7 @@ def create_text(date, base_text):
 			for deadline in tasks_and_dates:
 				if date == deadline:
 					for task in tasks_and_dates[deadline]:
-						text += "\n\n" + file.split('.')[0] + "\n" + task.replace("- [ ]", "\u2757")
+						text += "\n\n" + file.split('.')[0].replace("_", " ") + "\n" + task.replace("- [ ]", "\u2757")
 					print("Adding tasks")
 			print("Done")
 	print()
@@ -94,9 +94,9 @@ def create_text_undone(date, base_text):
 			for deadline in tasks_and_dates:
 				if date > deadline:
 					for task in tasks_and_dates[deadline]:
-						text += "\n\n" + escape_markdown(file.split('.')[0]) + "\n" + task.replace("- [ ]", "\u2757")
+						text += "\n\n" + file.split('.')[0].replace("_", " ") + "\n" + task.replace("- [ ]", "\u2757")
 					print("Adding tasks")
-			print("Done")
+			print("Done").replace("_", " ")
 	print()
 	if text == base_text:
 		return ""
