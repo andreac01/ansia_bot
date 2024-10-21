@@ -119,14 +119,15 @@ def create_text_undone(date: str, base_text: str) -> str:
 		return ""
 	return text
 
-def update_pads(urls: list, data_dir="../data") -> None:
+def update_pads(urls: list, relative_path="../data") -> None:
 	"""Updates the pads with the latest information. By scraping the data from the urls.
 	args: urls: list of urls to scrape
 	"""
+	data_dir = os.path.join(os.path.dirname(__file__), relative_path)
 	for file in os.listdir(data_dir):
 		os.remove(data_dir + "/" + file)
 	for url in urls:
-		scrape_pad(url)
+		scrape_pad(url, relative_path)
 
 def create_pad_text(course_name: str, site_name:str, days: list) -> str:
 	"""Creates a text with the tasks for the course.
