@@ -10,7 +10,7 @@ from telegram.ext import (
 	ConversationHandler, 
     filters, 
 )
-from core.scraper import scrape_pads, get_pad_title
+from core.scraper import scrape_pad, get_pad_title
 from core.utils import create_text, update_pads, create_text_undone, escape_markdown, create_pad_text, create_links
 
 with open("settings.json") as settings_file:
@@ -124,7 +124,7 @@ async def add_pad(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 	else:
 		url = text[1]
 		try:
-			scrape_pads(url)
+			scrape_pad(url)
 		except Exception as e:
 			await update.message.reply_text(f"Error: {escape_markdown(e)}\n\nTry to check the url", parse_mode=parse_mode)
 			return

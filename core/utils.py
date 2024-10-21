@@ -4,7 +4,7 @@ import json
 import os
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__)))
-from scraper import scrape_pads
+from scraper import scrape_pad
 from datetime import timedelta
 
 def escape_markdown(text: str) -> str:
@@ -119,13 +119,14 @@ def create_text_undone(date: str, base_text: str) -> str:
 		return ""
 	return text
 
-def update_pads(urls: list) -> None:
+def update_pads(urls: list, data_dir="../data") -> None:
 	"""Updates the pads with the latest information. By scraping the data from the urls.
 	args: urls: list of urls to scrape
 	"""
-
+	for file in os.listdir(data_dir):
+		os.remove(data_dir + "/" + file)
 	for url in urls:
-		scrape_pads(url)
+		scrape_pad(url)
 
 def create_pad_text(course_name: str, site_name:str, days: list) -> str:
 	"""Creates a text with the tasks for the course.

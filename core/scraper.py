@@ -4,7 +4,7 @@ import time
 import os
 
 # Function to scrape content from the given URL
-def scrape_pads(url: str, relative_path='../data') -> None:
+def scrape_pad(url: str, relative_path='../data') -> None:
 	"""Scrape the content of a CodiMD pad and save it to a file.
 	args: url: URL of the CodiMD pad
 	relative_path: relative path to save the content

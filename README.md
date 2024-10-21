@@ -83,7 +83,7 @@ Remember to change <base_directory> properly
 After having configured the environment we can run the main interactive interface of the bot. To properly do so run the following commands:
 
 ```
-nohup python3 request_handler.py &>
+nohup python3 request_handler.py &
 ```
 
 nohup ensures that the program will run even after disconnection and & discards outputs.
