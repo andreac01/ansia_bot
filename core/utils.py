@@ -96,7 +96,7 @@ def create_text_undone(date, base_text):
 					for task in tasks_and_dates[deadline]:
 						text += "\n\n" + file.split('.')[0].replace("_", " ") + "\n" + task.replace("- [ ]", "\u2757")
 					print("Adding tasks")
-			print("Done").replace("_", " ")
+			print("Done")
 	print()
 	if text == base_text:
 		return ""
