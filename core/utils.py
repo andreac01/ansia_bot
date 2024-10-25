@@ -155,36 +155,41 @@ def create_pad_text(course_name: str, site_name:str, days: list) -> str:
 	text = f"""# Corso {course_name}
 
 	### TODO: 
-	- ({month_and_half_bef}) - Elaborare proposte definitive delle date del corso (_responsabile corso_)(**_direttivo_** riceve e comunica a gruppo social (taggando responsabile gruppo social))
+	- ({month_and_half_bef.strftime("%Y-%m-%d")})
+	 		- [ ] Elaborare proposte definitive delle date del corso (responsabile corso {site_name})(**_direttivo_**) riceve e comunica a gruppo social (**_social_**))
 			- [ ] Mandare mail a Poli per chiedere aule (**_direttivo_**) 
 				- Verificare necessità particolari come capienza/prese elettriche 
 				- Mail a eventileonardo@polimi.it o eventibovisa@polimi.it
 				- Dopo una settimana, senza risposta, solleciti telefonici fatti a Lorella Errico e Francesco Esposito (Lorella è stata più efficiente) (In generale cercare in rubrica: area infrastrutture e servizi - funzioni di staff)
 			- [ ] Creare pagina dell'edizione sul sito + creare messaggio con i link analytics (e lo short URL) + form di iscrizione (**_social_**)
 				- Nella descrizione va specificato: il link del form, se registriamo/streammiamo, dove trovare il link dello stream/rec, in che lingua è il talk, eventuali prerequisiti (anche cose da installare)"
-		- ({month_before}) Ottenere aule dal Poli (**_direttivo_**)
+	- ({month_before.strftime("%Y-%m-%d")}) 
+			- [ ] Ottenere aule dal Poli (**_direttivo_**)
 			- [ ] Deadline manifesto completo per prima review sui gruppi (**_social_**) (sia su gruppo manifesti che su gruppo corso)
 			- [ ] Aggiornare pagina sul sito con aule (**_social_**)
-		- ({day_tamtam}) compilare PoliTamTam (**_direttivo_**)
-			- [ ] done
-		- ({three_weeks_bef}) Mandare in approvazione manifesto (**_direttivo_**)
+	- ({day_tamtam.strftime("%Y-%m-%d")}) 
+			- [ ] compilare PoliTamTam (**_direttivo_**)
+	- ({three_weeks_bef.strftime("%Y-%m-%d")}) 
+			- [ ] Mandare in approvazione manifesto (**_direttivo_**)
 			- [ ] Deadline manifesto completo con footer (**_social_**)
-		- ({two_weeks_bef}) Stampare manifesti e appenderli (**_social_**)
-			- [ ] 3 A3 (di cui uno in bacheca e 2 per l'aula)
-			- [ ] 2 A4 Cartonato/plastificato (di cui uno da appendere in sede e uno da tenere per banchetti)
-		- ({week_before}) Posts IG+TG w/ manifesto del corso (**_social_**)
+	- ({two_weeks_bef.strftime("%Y-%m-%d")}) 
+			- [ ] Stampare manifesti e appenderli (**_social_**): 3 A3 (di cui uno in bacheca e 2 per l'aula)
+			- [ ] Stampare manifesti e appenderli (**_social_**): 2 A4 Cartonato/plastificato (di cui uno da appendere in sede e uno da tenere per banchetti)
+	- ({week_before.strftime("%Y-%m-%d")}) 
+			- [ ]Posts IG+TG w/ manifesto del corso (**_social_**)
 			- [ ] Manifesto, orari, aule, descrizione, link al sito (**_social_**)
 			- [ ] Deadline design storie instagram (**_social_**)
 			- [ ] Deadline design thumbnail youtube (**_social_**)
 			- [ ] Creare live (**_social_**) (verificare comportamento feed su live unlisted)
 			- [ ] Schedule Posts telegram (12:00 del giorno del corso) (**_social_**)
-		- ({day_before}) Pubblicare storia IG (**_social_**)
-			- [ ] "ci vediamo domani"
+	- ({day_before.strftime("%Y-%m-%d")}) 
+			- [ ] Pubblicare storia IG: "ci vediamo domani" (**_social_**)
 		"""
 	for day in days:
-		text += f"""- ({day}) Pubblicare storia IG (**_social_**)
-			- [ ] 12:00 (_storia IG_) promemoria corso
-			- [ ] 12:00 (_messaggio TG_): luogo, ora, titolo lezione, timer, link alla stream"""
+		text += f"""
+		- ({day.strftime("%Y-%m-%d")}) 
+				- [ ] 12:00 Pubblicare (_storia IG_): promemoria corso (**_social_**)
+				- [ ] 12:00 Pubblicare (_messaggio TG_): luogo, ora, titolo lezione, timer, link alla stream"""
 
 	return text
 
