@@ -7,6 +7,13 @@ sys.path.append(os.path.join(os.path.dirname(__file__)))
 from scraper import scrape_pad
 from datetime import timedelta
 
+class MissingTagException(Exception):
+	"""Exception raised when a tag is missing in the recipients file."""
+	def __init__(self, missing_tags):
+		self.missing_tags = missing_tags
+		self.message = f"Missing tags: {missing_tags}"
+		super().__init__(self.message)
+
 def escape_markdown(text: str) -> str:
 	"""Escape all markdown special characters found in text.
 	args: tetx: text to escape
@@ -156,7 +163,7 @@ def create_pad_text(course_name: str, site_name:str, days: list) -> str:
 
 	### TODO: 
 	- ({month_and_half_bef.strftime("%Y-%m-%d")})
-	 		- [ ] Elaborare proposte definitive delle date del corso (responsabile corso {site_name})(**_direttivo_**) riceve e comunica a gruppo social (**_social_**))
+	 		- [ ] Elaborare proposte definitive delle date del corso (_**responsabile_{site_name}**_)(**_direttivo_**) riceve e comunica a gruppo social
 			- [ ] Mandare mail a Poli per chiedere aule (**_direttivo_**) 
 				- Verificare necessità particolari come capienza/prese elettriche 
 				- Mail a eventileonardo@polimi.it o eventibovisa@polimi.it
@@ -164,32 +171,30 @@ def create_pad_text(course_name: str, site_name:str, days: list) -> str:
 			- [ ] Creare pagina dell'edizione sul sito + creare messaggio con i link analytics (e lo short URL) + form di iscrizione (**_social_**)
 				- Nella descrizione va specificato: il link del form, se registriamo/streammiamo, dove trovare il link dello stream/rec, in che lingua è il talk, eventuali prerequisiti (anche cose da installare)"
 	- ({month_before.strftime("%Y-%m-%d")}) 
-			- [ ] Ottenere aule dal Poli (**_direttivo_**)
-			- [ ] Deadline manifesto completo per prima review sui gruppi (**_social_**) (sia su gruppo manifesti che su gruppo corso)
+			- [ ] Verificare prenotazione aule sui servizi online (**_social_**)
+				- Se non ci sono aule prenotate, sollecitare il poli (**_direttivo_**) (molto urgente)
+			- [ ] Deadline per presentare sui gruppi la bozza del manifesto (**_designers_**) (sia su gruppo manifesti che su gruppo del corso {site_name})
 			- [ ] Aggiornare pagina sul sito con aule (**_social_**)
 	- ({day_tamtam.strftime("%Y-%m-%d")}) 
 			- [ ] compilare PoliTamTam (**_direttivo_**)
 	- ({three_weeks_bef.strftime("%Y-%m-%d")}) 
 			- [ ] Mandare in approvazione manifesto (**_direttivo_**)
-			- [ ] Deadline manifesto completo con footer (**_social_**)
+			- [ ] Deadline manifesto completo con footer (**_social_**) (**_designers_**) (**_direttivo_**)
 	- ({two_weeks_bef.strftime("%Y-%m-%d")}) 
-			- [ ] Stampare manifesti e appenderli (**_social_**): 3 A3 (di cui uno in bacheca e 2 per l'aula)
-			- [ ] Stampare manifesti e appenderli (**_social_**): 2 A4 Cartonato/plastificato (di cui uno da appendere in sede e uno da tenere per banchetti)
+			- [ ] Stampare manifesti e appenderli (**_social_**)
 	- ({week_before.strftime("%Y-%m-%d")}) 
-			- [ ]Posts IG+TG w/ manifesto del corso (**_social_**)
-			- [ ] Manifesto, orari, aule, descrizione, link al sito (**_social_**)
-			- [ ] Deadline design storie instagram (**_social_**)
-			- [ ] Deadline design thumbnail youtube (**_social_**)
-			- [ ] Creare live (**_social_**) (verificare comportamento feed su live unlisted)
-			- [ ] Schedule Posts telegram (12:00 del giorno del corso) (**_social_**)
+			- [ ] Aggiungere orari e aule al manifesto approvato (**_designers_**)
+			- [ ] Posts IG+TG con manifesto del corso (**_social_**)
+			- [ ] Deadline design thumbnails youtube (**_designers_**)
+			- [ ] Schedulare live (**_social_**)
+			- [ ] Schedule posts telegram (12:00 del giorno del corso) (**_social_**)
 	- ({day_before.strftime("%Y-%m-%d")}) 
 			- [ ] Pubblicare storia IG: "ci vediamo domani" (**_social_**)
 		"""
 	for day in days:
 		text += f"""
 		- ({day.strftime("%Y-%m-%d")}) 
-				- [ ] 12:00 Pubblicare (_storia IG_): promemoria corso (**_social_**)
-				- [ ] 12:00 Pubblicare (_messaggio TG_): luogo, ora, titolo lezione, timer, link alla stream"""
+				- [ ] 12:00 Pubblicare storia IG: promemoria corso (**_social_**)"""
 
 	return text
 
