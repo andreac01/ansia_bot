@@ -295,6 +295,9 @@ async def ask_course_site_name(update: Update, context: ContextTypes.DEFAULT_TYP
 	context: telegram context
 	returns: ASK_COURSE_SITE_NAME
 	"""
+	if update.message.text.lower().replace(" ", "").replace("\n", "") in ["cancel", "exit", "break"]:
+		await update.message.reply_text("Operation cancelled")
+		return ConversationHandler.END
 	context.user_data['course_name'] = update.message.text
 	await update.message.reply_text("Nice! \nWhat's the short name of the course used in the website?")
 	return ASK_COURSE_SITE_NAME
@@ -305,6 +308,9 @@ async def ask_dates(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 	context: telegram context
 	returns: ASK_DATES
 	"""
+	if update.message.text.lower().replace(" ", "").replace("\n", "") in ["cancel", "exit", "break"]:
+		await update.message.reply_text("Operation cancelled")
+		return ConversationHandler.END
 	context.user_data['course_site_name'] = update.message.text
 	context.user_data['dates'] = []
 	await update.message.reply_text(f"Great! Now let's add the dates of the course!\nPlease write the date of day {len(context.user_data['dates']) + 1} in the format YYYY MM DD. \nType done whe you have finished adding dates.")
@@ -316,6 +322,9 @@ async def get_all_dates(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
 	context: telegram context
 	returns: ASK_DATES
 	"""
+	if update.message.text.lower().replace(" ", "").replace("\n", "") in ["cancel", "exit", "break"]:
+		await update.message.reply_text("Operation cancelled")
+		return ConversationHandler.END
 	date = update.message.text
 	if date.lower().replace(" ", "").replace("\n", "") == "done":
 		context.user_data['dates'] = sorted(context.user_data['dates'])
