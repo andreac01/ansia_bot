@@ -11,4 +11,4 @@ pip install -r requirements.txt
 # Kill the existing Python process
 pkill -f request_handler.py
 # Run the Python script
-python3 request_handler.py
+nohup python3 request_handler.py &

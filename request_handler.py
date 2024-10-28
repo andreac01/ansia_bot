@@ -327,6 +327,9 @@ async def get_all_dates(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
 		return ConversationHandler.END
 	date = update.message.text
 	if date.lower().replace(" ", "").replace("\n", "") == "done":
+		if len(context.user_data['dates']) == 0:
+			await update.message.reply_text("You need to add at least 1 date. Please try again")
+			return ASK_DATES
 		context.user_data['dates'] = sorted(context.user_data['dates'])
 		informations = f"Course name: {context.user_data['course_name']}\nCourse site name: {context.user_data['course_site_name']}\nDates:\n"
 		for date in context.user_data['dates']:

@@ -80,6 +80,8 @@ Remember to change <base_directory> properly
 
 ### 3. Run bot interface
 
+#### 3.a plain implementation
+
 After having configured the environment we can run the main interactive interface of the bot. To properly do so run the following commands:
 
 ```
@@ -88,7 +90,18 @@ nohup python3 request_handler.py &
 
 nohup ensures that the program will run even after disconnection and & discards outputs.
 
-### 4. Cron
+#### 3.b daily check for changes on repository
+To periodically pull from the github repository any change. Run:
+```
+crontab -e
+```
+Then add this entry at the end of the file that will open
+
+`0 4 * * * <base_directory>/ansia_bot/auto_update.sh`
+
+Remember to change <base_directory> properly
+
+### 4. Daily update message
 
 To periodically execute the main function a crontab is needed. Run:
 ```
