@@ -3,7 +3,7 @@
 # Navigate to the directory containing main.py
 cd <base_directory>/ansia_bot
 # Pull the latest changes from the remote repository
-git pull origin master
+git pull
 # Activate the virtual environment
 source ~/venvs/telegram_venv/bin/activate
 # Install any new dependencies
