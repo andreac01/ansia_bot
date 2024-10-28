@@ -41,5 +41,6 @@ async def main():
 			await bot.send_message(chat_id=chat_id, text=text3, parse_mode=parse_mode)
 
 
+
 if __name__ == "__main__":
     asyncio.run(main())
