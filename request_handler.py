@@ -87,9 +87,9 @@ async def padula(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 			padulati[group] = []
 		if old_username in padulati[group]:
 			padulati[group].remove(old_username)
+			flag = True
 			if new_username != "_":
 				padulati[group].append(new_username)
-				flag = True
 			else:
 				await update.message.reply_text(f"Succesfully removed {escape_markdown(old_username)}", parse_mode=parse_mode)
 		if old_username == "_":
@@ -100,7 +100,8 @@ async def padula(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 			flag = True
 		if flag:
 			json.dump(padulati, open("padulati.json", "w"), indent=4)
-			await update.message.reply_text(f"Succesfully paduled {escape_markdown(new_username)}", parse_mode=parse_mode)
+			if new_username != "_":
+				await update.message.reply_text(f"Succesfully paduled {escape_markdown(new_username)}", parse_mode=parse_mode)
 		else:
 			reply = f"Username {escape_markdown(old_username)} not found\n\n" + get_paduli_text()
 			await update.message.reply_text(reply, parse_mode=parse_mode)
