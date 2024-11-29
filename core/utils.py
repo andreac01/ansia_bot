@@ -99,7 +99,7 @@ def create_text(date: str, base_text: str) -> str:
 			tasks_and_dates = find_tasks_and_dates(course_description)
 			for deadline in tasks_and_dates:
 				if date == deadline:
-					if text == base_text and len(tasks_and_dates[deadline]) > 0:
+					if text == base_text and len(list(tasks_and_dates[deadline])) > 0:
 						text += "\n\n*" + file.split('.')[0].replace("_", " ") + "*"
 					for task in tasks_and_dates[deadline]:
 						text += "\n\n" + task.replace("- [ ]", "\u2757")
@@ -122,7 +122,7 @@ def create_text_undone(date: str, base_text: str) -> str:
 			tasks_and_dates = find_tasks_and_dates(course_description)
 			for deadline in tasks_and_dates:
 				if date > deadline:
-					if text == base_text and len(tasks_and_dates[deadline]) > 0:
+					if text == base_text and len(list(tasks_and_dates[deadline])) > 0:
 						text += "\n\n*" + file.split('.')[0].replace("_", " ") + "*"
 					for task in tasks_and_dates[deadline]:
 						text += "\n\n" + task.replace("- [ ]", "\u2757")
