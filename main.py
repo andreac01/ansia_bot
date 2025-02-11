@@ -8,6 +8,8 @@ import asyncio
 
 async def main():
 	"""Main function to update the pads and send the messages to the chat_ids."""
+	# Debug time
+	print(f"Main function started at {datetime.now()}")
 	
 	# Load settings
 	settings = json.load(open("settings.json"))

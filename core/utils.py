@@ -31,7 +31,7 @@ def mach_dates(text: str) -> list:
 	return ["{}-{}-{}".format(year, month, day) for year, month, day in matches]
 
 
-def find_tasks(text:str, return_done=False) -> list:
+def find_tasks(text:str, return_done=False):
 	"""Finds tasks in the format - [ ] in text.
 	args: text: text to search for tasks
 	returns: list of tasks
@@ -99,9 +99,10 @@ def create_text(date: str, base_text: str) -> str:
 			tasks_and_dates = find_tasks_and_dates(course_description)
 			for deadline in tasks_and_dates:
 				if date == deadline:
-					if text == base_text and len(list(tasks_and_dates[deadline])) > 0:
+					tasks = list(tasks_and_dates[deadline])
+					if text == base_text and len(tasks) > 0:
 						text += "\n\n*" + file.split('.')[0].replace("_", " ") + "*"
-					for task in tasks_and_dates[deadline]:
+					for task in tasks:
 						text += "\n\n" + task.replace("- [ ]", "\u2757")
 	if text == base_text:
 		return ""
@@ -122,9 +123,10 @@ def create_text_undone(date: str, base_text: str) -> str:
 			tasks_and_dates = find_tasks_and_dates(course_description)
 			for deadline in tasks_and_dates:
 				if date > deadline:
-					if text == base_text and len(list(tasks_and_dates[deadline])) > 0:
+					tasks = list(tasks_and_dates[deadline])
+					if text == base_text and len(tasks) > 0:
 						text += "\n\n*" + file.split('.')[0].replace("_", " ") + "*"
-					for task in tasks_and_dates[deadline]:
+					for task in tasks:
 						text += "\n\n" + task.replace("- [ ]", "\u2757")
 
 	if text == base_text:
@@ -168,7 +170,7 @@ def create_pad_text(course_name: str, site_name:str, days: list) -> str:
 
 	### TODO: 
 	- ({month_and_half_bef.strftime("%Y-%m-%d")})
-	 		- [ ] Elaborare proposte definitive delle date del corso (_**responsabile_{site_name}**_)(**_direttivo_**) riceve e comunica a gruppo social
+	 		- [ ] Elaborare proposte definitive delle date del corso (_**responsabile-{site_name}**_)(**_direttivo_**) riceve e comunica a gruppo social
 			- [ ] Mandare mail a Poli per chiedere aule (**_direttivo_**) 
 				- Verificare necessità particolari come capienza/prese elettriche 
 				- Mail a eventileonardo@polimi.it o eventibovisa@polimi.it
