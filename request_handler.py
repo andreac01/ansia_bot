@@ -375,7 +375,7 @@ async def create_text_for_pad(update: Update, context: ContextTypes.DEFAULT_TYPE
 	confirmations = ["yes", "y", "ok", "sure", "confirm", "correct", "giusto", "si", "sì", "yep"]
 
 	padulati = json.load(open("padulati.json"))
-	padulati["responsabile-" + context.user_data['course_site_name']] = [update.message.text]
+	padulati["responsabile-" + context.user_data['course_site_name']] = [context.user_data['padulato']]
 	json.dump(padulati, open("padulati.json", "w"), indent=4)
 
 	if update.message.text.lower().replace(" ", "").replace("\n", "") in confirmations:
