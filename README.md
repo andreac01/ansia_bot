@@ -127,3 +127,21 @@ All later modifications can be done through the telegra interface of the bot.
 4. Add the chat you want to update using (via telegram)
 5. Add all the pads (via telegram)
 6. Always publish the pads and create them as editable (via pad.poul.org)
+
+
+## Implementation notes:
+
+The code is divided into two main parts: 
+- request_handler.py: handles all interactions with the bot, mainly aimed at adding admins, chats, pads or visualizing the current settings.
+- main.py: sends notifications to all traced chats (automatic notification)
+
+Additionally there are the two folders:
+- core: contains code utilities:
+  - scraper.py: handles updates and scraping of pads hosted on pad.poul.org and added via the telegram bot interface
+  - utils.py: miscellanea of most function to handle data and text generation. Here are all general functions that are used to parse the pad for particular informations.
+- data: a folder containing local copies of the traced pads. Old pads are automatically deleted, while new pads are added by the scraper once they are added to the list of pads to be traced.
+  
+Finally there are the json files used to store settings or informations:
+- admins.json: contains the list of admins that are user that can add the bot to chat and add new pads
+- padulati.json: contains the list of roles and people people to tag
+- settings.json: contains some settings of the bot, such as the token of the bot and the list of chats to update
