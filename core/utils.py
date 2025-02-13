@@ -170,7 +170,7 @@ def create_pad_text(course_name: str, site_name:str, days: list) -> str:
 
 	### TODO: 
 	- ({month_and_half_bef.strftime("%Y-%m-%d")})
-	 		- [ ] Elaborare proposte definitive delle date del corso (_**responsabile-{site_name}**_)(**_direttivo_**) riceve e comunica a gruppo social
+	 		- [ ] Elaborare proposte definitive delle date del corso (**_responsabile {site_name}_**)(**_direttivo_**) riceve e comunica a gruppo social
 			- [ ] Mandare mail a Poli per chiedere aule (**_direttivo_**) 
 				- Verificare necessità particolari come capienza/prese elettriche 
 				- Mail a eventileonardo@polimi.it o eventibovisa@polimi.it
