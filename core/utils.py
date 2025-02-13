@@ -92,6 +92,7 @@ def create_text(date: str, base_text: str) -> str:
 
 	text = base_text
 	data_files = os.listdir("data")
+	texts = {}
 	for file in data_files:
 		with open("data/" + file, "r") as f:
 			course_description = f.read()
@@ -100,10 +101,12 @@ def create_text(date: str, base_text: str) -> str:
 			for deadline in tasks_and_dates:
 				if date == deadline:
 					tasks = list(tasks_and_dates[deadline])
-					if text == base_text and len(tasks) > 0:
-						text += "\n\n*" + file.split('.')[0].replace("_", " ") + "*"
+					if texts.get(file, None) == None and len(tasks) > 0:
+						texts[file] = "\n\n*" + file.split('.')[0].replace("_", " ") + "*"
 					for task in tasks:
-						text += "\n\n" + task.replace("- [ ]", "\u2757")
+						texts[file] += "\n\n" + task.replace("- [ ]", "\u2757")
+	for key in texts:
+		text += "\n\n\n" + texts[key]
 	if text == base_text:
 		return ""
 	return text
@@ -116,6 +119,7 @@ def create_text_undone(date: str, base_text: str) -> str:
 	"""
 	text = base_text
 	data_files = os.listdir("data")
+	texts = {}
 	for file in data_files:
 		with open("data/" + file, "r") as f:
 			course_description = f.read()
@@ -124,11 +128,13 @@ def create_text_undone(date: str, base_text: str) -> str:
 			for deadline in tasks_and_dates:
 				if date > deadline:
 					tasks = list(tasks_and_dates[deadline])
-					if text == base_text and len(tasks) > 0:
-						text += "\n\n*" + file.split('.')[0].replace("_", " ") + "*"
+					if texts.get(file, None) == None and len(tasks) > 0:
+						texts[file] = "\n\n*" + file.split('.')[0].replace("_", " ") + "*"
 					for task in tasks:
-						text += "\n\n" + task.replace("- [ ]", "\u2757")
+						texts[file] += "\n\n" + task.replace("- [ ]", "\u2757")
 
+	for key in texts:
+		text += "\n\n\n" + texts[key]
 	if text == base_text:
 		return ""
 	return text
@@ -170,7 +176,7 @@ def create_pad_text(course_name: str, site_name:str, days: list) -> str:
 
 	### TODO: 
 	- ({month_and_half_bef.strftime("%Y-%m-%d")})
-	 		- [ ] Elaborare proposte definitive delle date del corso (**_responsabile {site_name}_**)(**_direttivo_**) riceve e comunica a gruppo social
+	 		- [ ] Elaborare proposte definitive delle date del corso (**_responsabile{site_name}_**)(**_direttivo_**) riceve e comunica a gruppo social
 			- [ ] Mandare mail a Poli per chiedere aule (**_direttivo_**) 
 				- Verificare necessità particolari come capienza/prese elettriche 
 				- Mail a eventileonardo@polimi.it o eventibovisa@polimi.it
