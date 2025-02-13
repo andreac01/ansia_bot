@@ -275,11 +275,11 @@ async def check(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 	# update pads
 	update_pads(urls)
 	# prepare text of today
-	text = create_text(today, text_today) + "\n\n" + create_text(tomorrow, text_tomorrow) + "\n\n" + create_text_undone(today, text_undone)
-	if text == "\n\n\n\n":
+	text = create_text(today, text_today) + "\n\n\n\n" + create_text(tomorrow, text_tomorrow) + "\n\n\n\n" + create_text_undone(today, text_undone)
+	if text == "\n\n\n\n\n\n\n\n":
 		await update.message.reply_text("No pending tasks found", parse_mode=parse_mode)
 		return
-	await update.message.reply_text(text.replace("\n\n\n\n", "\n\n"), parse_mode=parse_mode)
+	await update.message.reply_text(text.replace("\n\n\n\n\n\n\n\n","\n\n\n\n"), parse_mode=parse_mode)
 
 async def create_pad(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 	"""Create a new pad. The conversation is divided in 4 steps: ask_course_name, ask_course_site_name, ask_dates, create_pad.

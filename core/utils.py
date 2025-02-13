@@ -106,7 +106,7 @@ def create_text(date: str, base_text: str) -> str:
 					for task in tasks:
 						texts[file] += "\n\n" + task.replace("- [ ]", "\u2757")
 	for key in texts:
-		text += "\n\n\n" + texts[key]
+		text += texts[key]
 	if text == base_text:
 		return ""
 	return text
@@ -134,7 +134,7 @@ def create_text_undone(date: str, base_text: str) -> str:
 						texts[file] += "\n\n" + task.replace("- [ ]", "\u2757")
 
 	for key in texts:
-		text += "\n\n\n" + texts[key]
+		text += texts[key]
 	if text == base_text:
 		return ""
 	return text
