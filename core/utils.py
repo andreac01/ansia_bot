@@ -74,13 +74,21 @@ def find_tasks_and_dates(text: str, return_done=False) -> dict:
 	dates = mach_dates(text)
 	for idx, date in enumerate(dates):
 
-		cur_date_text = text.split(dates[idx])[1]
+		cur_date_text_array = text.split(dates[idx])
+		if len(cur_date_text_array) == 2:
+			cur_date_text = cur_date_text_array[1]
+		else:
+			count = len([x for x in dates[:idx] if x == dates[idx]])
+			cur_date_text = cur_date_text_array[count + 1]
 		if idx != len(dates) - 1:
 			cur_date_text = cur_date_text.split(dates[idx + 1])[0]
 		tasks = find_tasks(cur_date_text, return_done)
 
 		if tasks:
-			date_to_task[date] = tasks
+			if date_to_task.get(date, None) == None:
+				date_to_task[date] = list(tasks)
+			else:
+				date_to_task[date] += list(tasks)
 	return date_to_task
 
 def create_text(date: str, base_text: str) -> str:
