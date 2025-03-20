@@ -4,7 +4,7 @@ import json
 import os
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__)))
-from scraper import scrape_pad
+from scraper import scrape_pad, get_pad_title
 from datetime import timedelta
 
 class MissingTagException(Exception):
@@ -91,7 +91,7 @@ def find_tasks_and_dates(text: str, return_done=False) -> dict:
 				date_to_task[date] += list(tasks)
 	return date_to_task
 
-def create_text(date: str, base_text: str) -> str:
+def create_text(date: str, base_text: str, urls: list) -> str:
 	"""Creates a text with the tasks of the day.
 	args: date: date to search for tasks
 	base_text: text to append the tasks to
@@ -110,7 +110,9 @@ def create_text(date: str, base_text: str) -> str:
 				if date == deadline:
 					tasks = list(tasks_and_dates[deadline])
 					if texts.get(file, None) == None and len(tasks) > 0:
-						texts[file] = "\n\n*" + file.split('.')[0].replace("_", " ") + "*"
+						for url in urls:
+							if file.split('.')[0] == get_pad_title(url):
+								texts[file] = "\n\n[" + file.split('.')[0].replace("_", " ") + "](" + url + ")"
 					for task in tasks:
 						texts[file] += "\n\n" + task.replace("- [ ]", "\u2757")
 	for key in texts:
@@ -119,7 +121,7 @@ def create_text(date: str, base_text: str) -> str:
 		return ""
 	return text
 
-def create_text_undone(date: str, base_text: str) -> str:
+def create_text_undone(date: str, base_text: str, urls: list) -> str:
 	"""Creates a text with the task that were not completed before date.
 	args: date: last date to search for tasks
 	base_text: text to append the tasks to
@@ -137,7 +139,9 @@ def create_text_undone(date: str, base_text: str) -> str:
 				if date > deadline:
 					tasks = list(tasks_and_dates[deadline])
 					if texts.get(file, None) == None and len(tasks) > 0:
-						texts[file] = "\n\n*" + file.split('.')[0].replace("_", " ") + "*"
+						for url in urls:
+							if file.split('.')[0] == get_pad_title(url):
+								texts[file] = "\n\n[" + file.split('.')[0].replace("_", " ") + "](" + url + ")"
 					for task in tasks:
 						texts[file] += "\n\n" + task.replace("- [ ]", "\u2757")
 
