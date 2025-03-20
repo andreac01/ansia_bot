@@ -275,7 +275,7 @@ async def check(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 	# update pads
 	update_pads(urls)
 	# prepare text of today
-	text = create_text(today, text_today) + "\n\n\n\n" + create_text(tomorrow, text_tomorrow) + "\n\n\n\n" + create_text_undone(today, text_undone)
+	text = create_text(today, text_today, urls) + "\n\n\n\n" + create_text(tomorrow, text_tomorrow, urls) + "\n\n\n\n" + create_text_undone(today, text_undone, urls)
 	if text == "\n\n\n\n\n\n\n\n":
 		await update.message.reply_text("No pending tasks found", parse_mode=parse_mode)
 		return
