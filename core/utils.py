@@ -112,7 +112,7 @@ def create_text(date: str, base_text: str, urls: list) -> str:
 					if texts.get(file, None) == None and len(tasks) > 0:
 						for url in urls:
 							if file.split('.')[0] == get_pad_title(url):
-								texts[file] = "\n\n[" + file.split('.')[0].replace("_", " ") + "](" + url + ")"
+								texts[file] = "\n\n*" + file.split('.')[0].replace("_", " ") + "* [link 🔗](" + url + ")"
 					for task in tasks:
 						texts[file] += "\n\n" + task.replace("- [ ]", "\u2757")
 	for key in texts:
@@ -141,7 +141,7 @@ def create_text_undone(date: str, base_text: str, urls: list) -> str:
 					if texts.get(file, None) == None and len(tasks) > 0:
 						for url in urls:
 							if file.split('.')[0] == get_pad_title(url):
-								texts[file] = "\n\n[" + file.split('.')[0].replace("_", " ") + "](" + url + ")"
+								texts[file] = "\n\n*" + file.split('.')[0].replace("_", " ") + "* [link 🔗](" + url + ")"
 					for task in tasks:
 						texts[file] += "\n\n" + task.replace("- [ ]", "\u2757")
 
