@@ -16,7 +16,7 @@ def scrape_pad(url: str, relative_path='../data') -> None:
 			# Parse the HTML content
 			soup = BeautifulSoup(response.text, 'html.parser')
 			# Find the title of the page
-			title = str(soup.title.string.split(' - CodiMD')[0]).replace(' ', '_')
+			title = str(soup.title.string.split(' - HedgeDoc')[0]).replace(' ', '_')
 			# find markdown content
 			markdown = soup.find_all('div', class_='container markdown-body')
 			# Find the content (depending on the structure of the page)
@@ -42,6 +42,6 @@ def get_pad_title(url: str) -> str:
 	response = requests.get(url)
 	if response.status_code == 200:
 		soup = BeautifulSoup(response.text, 'html.parser')
-		title = str(soup.title.string.split(' - CodiMD')[0]).replace(' ', '_')
+		title = str(soup.title.string.split(' - HedgeDoc')[0]).replace(' ', '_')
 		return title
 	return None
