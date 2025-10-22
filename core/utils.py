@@ -184,24 +184,26 @@ def create_pad_text(course_name: str, site_name:str, days: list) -> str:
 	else: 
 		day_tamtam = day_1.replace(day=8)
 
+	servizionlineurl="https://servizionline.polimi.it/portaleservizi/portaleservizi/controller/preferiti/Preferiti.do?evn_srv=evento&idServizio="
+
 	text = f"""# Corso {course_name}
 
 	### TODO: 
 	- ({month_and_half_bef.strftime("%Y-%m-%d")})
 	 		- [ ] Elaborare proposte definitive delle date del corso (**_responsabile{site_name}_**)(**_direttivo_**) riceve e comunica a gruppo social
-			- [ ] Mandare mail a Poli per chiedere aule (**_direttivo_**) 
+			- [ ] Richiedere aule al Poli (**_direttivo_**) 
 				- Verificare necessità particolari come capienza/prese elettriche 
-				- Mail a eventileonardo@polimi.it o eventibovisa@polimi.it
+				- Completare richiesta su [applicativo servizi online](${servizionlineurl}2988)
 				- Dopo una settimana, senza risposta, solleciti telefonici fatti a Lorella Errico e Francesco Esposito (Lorella è stata più efficiente) (In generale cercare in rubrica: area infrastrutture e servizi - funzioni di staff)
 			- [ ] Creare pagina dell'edizione sul sito + creare messaggio con i link analytics (e lo short URL) + form di iscrizione (**_social_**)
 				- Nella descrizione va specificato: il link del form, se registriamo/streammiamo, dove trovare il link dello stream/rec, in che lingua è il talk, eventuali prerequisiti (anche cose da installare)"
 	- ({month_before.strftime("%Y-%m-%d")}) 
-			- [ ] Verificare prenotazione aule sui servizi online (**_social_**)
+			- [ ] Verificare prenotazione aule sui servizi online (**_direttivo_**)
 				- Se non ci sono aule prenotate, sollecitare il poli (**_direttivo_**) (molto urgente)
 			- [ ] Deadline per presentare sui gruppi la bozza del manifesto (**_designers_**) (sia su gruppo manifesti che su gruppo del corso {site_name})
 			- [ ] Aggiornare pagina sul sito con aule (**_social_**)
 	- ({day_tamtam.strftime("%Y-%m-%d")}) 
-			- [ ] compilare PoliTamTam (**_direttivo_**)
+			- [ ] compilare [Polimi App](${servizionlineurl}2489) (**_direttivo_**)
 	- ({three_weeks_bef.strftime("%Y-%m-%d")}) 
 			- [ ] Mandare in approvazione manifesto (**_direttivo_**)
 			- [ ] Deadline manifesto completo con footer (**_social_**) (**_designers_**) (**_direttivo_**)
@@ -213,8 +215,10 @@ def create_pad_text(course_name: str, site_name:str, days: list) -> str:
 			- [ ] Deadline design thumbnails youtube (**_designers_**)
 			- [ ] Schedulare live (**_social_**)
 			- [ ] Schedule posts telegram (12:00 del giorno del corso) (**_social_**)
+			- [ ] Peer review slides (**responsabile{site_name}_**) (**_direttivo_**)
 	- ({day_before.strftime("%Y-%m-%d")}) 
 			- [ ] Pubblicare storia IG: "ci vediamo domani" (**_social_**)
+			- [ ] Caricare le slide su slides.poul.org (**_responsabile{site_name}_**) (**_direttivo_**)
 		"""
 	for day in days:
 		text += f"""

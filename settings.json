@@ -1,9 +1,10 @@
 {
-    "parse_mode": "Markdown",
-    "text_undone": "\ud83d\udc27 Tasks *non fatte*:",
-    "text_today": "\ud83d\udc27 Tasks di *oggi*:",
-    "text_tomorrow": "\ud83d\udc27 Tasks di *domani*:",
-    "chat_ids": [],
-    "token": "YOUR_BOT_TOKEN",
-    "urls": []
+  "parse_mode": "Markdown",
+  "text_undone": "\ud83d\udc27 Tasks *non fatte*:",
+  "text_today": "\ud83d\udc27 Tasks di *oggi*:",
+  "text_tomorrow": "\ud83d\udc27 Tasks di *domani*:",
+  "chat_ids": [],
+  "pad_url": "pad.poul.org",
+  "token": "YOUR_BOT_TOKEN",
+  "urls": []
 }
