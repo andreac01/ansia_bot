@@ -384,7 +384,7 @@ async def create_text_for_pad(update: Update, context: ContextTypes.DEFAULT_TYPE
 	json.dump(padulati, open("padulati.json", "w"), indent=4)
 
 	if update.message.text.lower().replace(" ", "").replace("\n", "") in confirmations:
-		text = "*Markdown pad to load and publish as \"editable\" on ${base_url}/${site_name} :*"
+		text = f"*Markdown pad to load and publish as \"editable\" on {base_url}/{site_name} :*"
 		await update.message.reply_text(text, parse_mode=parse_mode)
 		for ids, date in enumerate(context.user_data['dates']):
 			context.user_data['dates'][ids] = datetime.strptime(date, "%Y %m %d")
