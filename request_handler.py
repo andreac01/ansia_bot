@@ -374,20 +374,25 @@ async def create_text_for_pad(update: Update, context: ContextTypes.DEFAULT_TYPE
 	"""
 	confirmations = ["yes", "y", "ok", "sure", "confirm", "correct", "giusto", "si", "sì", "yep"]
 
+	with open("settings.json") as settings_file:
+		settings = json.load(settings_file)
+	base_url= settings["pad_url"]
+	site_name=context.user_data['course_site_name']
+
 	padulati = json.load(open("padulati.json"))
-	padulati["responsabile " + context.user_data['course_site_name']] = [context.user_data['padulato']]
+	padulati["responsabile " + site_name] = [context.user_data['padulato']]
 	json.dump(padulati, open("padulati.json", "w"), indent=4)
 
 	if update.message.text.lower().replace(" ", "").replace("\n", "") in confirmations:
-		text = "*Markdown pad to load and publish as \"editable\" on pad.poul.org :*"
+		text = f"*Markdown pad to load and publish as \"editable\" on {base_url}/{site_name} :*"
 		await update.message.reply_text(text, parse_mode=parse_mode)
 		for ids, date in enumerate(context.user_data['dates']):
 			context.user_data['dates'][ids] = datetime.strptime(date, "%Y %m %d")
 			
-		text = create_pad_text(context.user_data['course_name'], context.user_data['course_site_name'], context.user_data['dates'])
+		text = create_pad_text(context.user_data['course_name'], site_name, context.user_data['dates'])
 		await update.message.reply_text(text)
 
-		text = create_links(context.user_data['course_name'], context.user_data['course_site_name'], context.user_data['dates'])
+		text = create_links(context.user_data['course_name'], site_name, context.user_data['dates'])
 		await update.message.reply_text(text)
 	else:
 		await update.message.reply_text("Please start again")
