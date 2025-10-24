@@ -332,7 +332,7 @@ async def ask_dates(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 		await update.message.reply_text("You need to tag the paduled guy (with '@'). Please try again")
 		return ASK_PADULATO	
 
-	context.user_data['padulato'] = update.message.text.replace("@", "")
+	context.user_data['padulato'] = update.message.text
 	await update.message.reply_text(f"Great! Now let's add the dates of the course!\nPlease write the date of day {len(context.user_data['dates']) + 1} in the format YYYY MM DD. \nType done whe you have finished adding dates.")
 	return ASK_DATES
 
@@ -380,7 +380,7 @@ async def create_text_for_pad(update: Update, context: ContextTypes.DEFAULT_TYPE
 	site_name=context.user_data['course_site_name']
 
 	padulati = json.load(open("padulati.json"))
-	padulati["responsabile " + site_name] = [context.user_data['padulato']]
+	padulati["responsabile" + site_name] = [context.user_data['padulato']]
 	json.dump(padulati, open("padulati.json", "w"), indent=4)
 
 	if update.message.text.lower().replace(" ", "").replace("\n", "") in confirmations:

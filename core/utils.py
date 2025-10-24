@@ -30,7 +30,6 @@ def mach_dates(text: str) -> list:
 	matches = re.findall(r"- \((\d{4})-(\d{2})-(\d{2})\)", text)
 	return ["{}-{}-{}".format(year, month, day) for year, month, day in matches]
 
-
 def find_tasks(text:str, return_done=False):
 	"""Finds tasks in the format - [ ] in text.
 	args: text: text to search for tasks
@@ -55,12 +54,12 @@ def substitute_recipients(text: str, recipients_file="padulati.json") -> str:
 
 	for recipient in recipients:
 		tags = ""
-		for username in recipients[recipient]:
-			tags += f"@{escape_markdown(username)} "
+		for username in recipients.get(recipient, []):
+			tags += f"{escape_markdown(username)}"
 		if tags == "":
-			tags = " "
-		
-		text = text.replace("**_" + recipient + "_**", tags[:-1])
+			tags = f"{escape_markdown(recipient)}"
+
+		text = text.replace("**_" + recipient + "_**", tags)
 	return text
 
 def find_tasks_and_dates(text: str, return_done=False) -> dict:
@@ -193,7 +192,7 @@ def create_pad_text(course_name: str, site_name:str, days: list) -> str:
 	 		- [ ] Elaborare proposte definitive delle date del corso (**_responsabile{site_name}_**)(**_direttivo_**) riceve e comunica a gruppo social
 			- [ ] Richiedere aule al Poli (**_direttivo_**) 
 				- Verificare necessità particolari come capienza/prese elettriche 
-				- Completare richiesta su [applicativo servizi online](${servizionlineurl}2988)
+				- Completare richiesta su [applicativo servizi online]({servizionlineurl}2988)
 				- Dopo una settimana, senza risposta, solleciti telefonici fatti a Lorella Errico e Francesco Esposito (Lorella è stata più efficiente) (In generale cercare in rubrica: area infrastrutture e servizi - funzioni di staff)
 			- [ ] Creare pagina dell'edizione sul sito + creare messaggio con i link analytics (e lo short URL) + form di iscrizione (**_social_**)
 				- Nella descrizione va specificato: il link del form, se registriamo/streammiamo, dove trovare il link dello stream/rec, in che lingua è il talk, eventuali prerequisiti (anche cose da installare)"
@@ -203,7 +202,7 @@ def create_pad_text(course_name: str, site_name:str, days: list) -> str:
 			- [ ] Deadline per presentare sui gruppi la bozza del manifesto (**_designers_**) (sia su gruppo manifesti che su gruppo del corso {site_name})
 			- [ ] Aggiornare pagina sul sito con aule (**_social_**)
 	- ({day_tamtam.strftime("%Y-%m-%d")}) 
-			- [ ] compilare [Polimi App](${servizionlineurl}2489) (**_direttivo_**)
+			- [ ] compilare [Polimi App]({servizionlineurl}2489) (**_direttivo_**)
 	- ({three_weeks_bef.strftime("%Y-%m-%d")}) 
 			- [ ] Mandare in approvazione manifesto (**_direttivo_**)
 			- [ ] Deadline manifesto completo con footer (**_social_**) (**_designers_**) (**_direttivo_**)
