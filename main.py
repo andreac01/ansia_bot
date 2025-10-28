@@ -31,17 +31,16 @@ async def main():
 	if text != "":
 		for chat_id in chat_ids:
 			await bot.send_message(chat_id=chat_id, text=text, parse_mode=parse_mode)
-	
+	# prepare text of tomorrow
 	text2 = create_text(tomorrow, text_tomorrow, urls)
 	if text2 != "":
 		for chat_id in chat_ids:
 			await bot.send_message(chat_id=chat_id, text=text2, parse_mode=parse_mode)
-	
+	# prepare text of undone tasks
 	text3 = create_text_undone(today, settings["text_undone"], urls)
 	if text3 != "":
 		for chat_id in chat_ids:
 			await bot.send_message(chat_id=chat_id, text=text3, parse_mode=parse_mode)
-
 
 
 if __name__ == "__main__":

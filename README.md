@@ -68,15 +68,15 @@ In main.sh you should properly set <base_directory>
 In order to function out of the box it is assumed that the host has a properly configured virual environment. In order to do so run the following commands:
 
 ```
-mkdir ~/venvs &&
-cd ~/venvs &&
+mkdir ~/.venv &&
+cd ~/.venv &&
 python3 -m venv telegram_venv &&
 source ./telegram_venv/bin/activate &&
 cd <base_directory>/ansia_bot &&
 pip install -r requirements.txt
 ```
 
-Remember to change <base_directory> properly
+Remember to change <base_directory> properly, you may also want to change ~/.venv path to your liking, remember to also apply the changes in `autoupdate.sh` and `main.sh`.
 
 ### 3. Run bot interface
 

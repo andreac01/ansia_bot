@@ -5,7 +5,7 @@ cd <base_directory>/ansia_bot
 # Pull the latest changes from the remote repository
 git pull
 # Activate the virtual environment
-source ~/venvs/telegram_venv/bin/activate
+source ~/.venv/telegram_venv/bin/activate
 # Install any new dependencies
 pip install -r requirements.txt
 # Kill the existing Python process

@@ -214,7 +214,7 @@ def create_pad_text(course_name: str, site_name:str, days: list) -> str:
 			- [ ] Deadline design thumbnails youtube (**_designers_**)
 			- [ ] Schedulare live (**_social_**)
 			- [ ] Schedule posts telegram (12:00 del giorno del corso) (**_social_**)
-			- [ ] Peer review slides (**responsabile{site_name}_**) (**_direttivo_**)
+			- [ ] Peer review slides (**_responsabile{site_name}_**) (**_direttivo_**)
 	- ({day_before.strftime("%Y-%m-%d")}) 
 			- [ ] Pubblicare storia IG: "ci vediamo domani" (**_social_**)
 			- [ ] Caricare le slide su slides.poul.org (**_responsabile{site_name}_**) (**_direttivo_**)
