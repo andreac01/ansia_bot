@@ -1,0 +1,7 @@
+Link per {{course_name}}:
+	Link da mettere nel QR: https://poul.org/courses/{{short_name}}/?mtm_campaign={{short_name}}{{year}}&mtm_kwd=manifesto
+	Link short per il manifesto: go.poul.org/{{short_name}}{{year}}
+	Link da mettere nella Polimi App: https://poul.org/courses/{{short_name}}/?mtm_campaign={{short_name}}{{year}}&mtm_kwd=tamtam
+	Link da usare su telegram: https://poul.org/courses/{{short_name}}/?mtm_campaign={{short_name}}{{year}}&mtm_kwd=tg
+	Link da usare su instagram: https://poul.org/courses/{{short_name}}/?mtm_campaign={{short_name}}{{year}}&mtm_kwd=ig
+	Link base: https://poul.org/courses/{{short_name}}/
