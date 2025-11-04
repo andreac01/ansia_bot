@@ -6,6 +6,7 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__)))
 from scraper import scrape_pad, get_pad_title
 from datetime import timedelta
+from jinja2 import Environment, FileSystemLoader
 
 class MissingTagException(Exception):
 	"""Exception raised when a tag is missing in the recipients file."""
@@ -183,46 +184,21 @@ def create_pad_text(course_name: str, site_name:str, days: list) -> str:
 	else: 
 		day_tamtam = day_1.replace(day=8)
 
-	servizionlineurl="https://servizionline.polimi.it/portaleservizi/portaleservizi/controller/preferiti/Preferiti.do?evn_srv=evento&idServizio="
-
-	text = f"""# Corso {course_name}
-
-	### TODO: 
-	- ({month_and_half_bef.strftime("%Y-%m-%d")})
-	 		- [ ] Elaborare proposte definitive delle date del corso (**_responsabile{site_name}_**)(**_direttivo_**) riceve e comunica a gruppo social
-			- [ ] Richiedere aule al Poli (**_direttivo_**) 
-				- Verificare necessità particolari come capienza/prese elettriche 
-				- Completare richiesta su [applicativo servizi online]({servizionlineurl}2988)
-				- Dopo una settimana, senza risposta, solleciti telefonici fatti a Lorella Errico e Francesco Esposito (Lorella è stata più efficiente) (In generale cercare in rubrica: area infrastrutture e servizi - funzioni di staff)
-			- [ ] Creare pagina dell'edizione sul sito + creare messaggio con i link analytics (e lo short URL) + form di iscrizione (**_social_**)
-				- Nella descrizione va specificato: il link del form, se registriamo/streammiamo, dove trovare il link dello stream/rec, in che lingua è il talk, eventuali prerequisiti (anche cose da installare)"
-	- ({month_before.strftime("%Y-%m-%d")}) 
-			- [ ] Verificare prenotazione aule sui servizi online (**_direttivo_**)
-				- Se non ci sono aule prenotate, sollecitare il poli (**_direttivo_**) (molto urgente)
-			- [ ] Deadline per presentare sui gruppi la bozza del manifesto (**_designers_**) (sia su gruppo manifesti che su gruppo del corso {site_name})
-			- [ ] Aggiornare pagina sul sito con aule (**_social_**)
-	- ({day_tamtam.strftime("%Y-%m-%d")}) 
-			- [ ] compilare [Polimi App]({servizionlineurl}2489) (**_direttivo_**)
-	- ({three_weeks_bef.strftime("%Y-%m-%d")}) 
-			- [ ] Mandare in approvazione manifesto (**_direttivo_**)
-			- [ ] Deadline manifesto completo con footer (**_social_**) (**_designers_**) (**_direttivo_**)
-	- ({two_weeks_bef.strftime("%Y-%m-%d")}) 
-			- [ ] Stampare manifesti e appenderli (**_social_**)
-	- ({week_before.strftime("%Y-%m-%d")}) 
-			- [ ] Aggiungere orari e aule al manifesto approvato (**_designers_**)
-			- [ ] Posts IG+TG con manifesto del corso (**_social_**)
-			- [ ] Deadline design thumbnails youtube (**_designers_**)
-			- [ ] Schedulare live (**_social_**)
-			- [ ] Schedule posts telegram (12:00 del giorno del corso) (**_social_**)
-			- [ ] Peer review slides (**_responsabile{site_name}_**) (**_direttivo_**)
-	- ({day_before.strftime("%Y-%m-%d")}) 
-			- [ ] Pubblicare storia IG: "ci vediamo domani" (**_social_**)
-			- [ ] Caricare le slide su slides.poul.org (**_responsabile{site_name}_**) (**_direttivo_**)
-		"""
-	for day in days:
-		text += f"""
-		- ({day.strftime("%Y-%m-%d")}) 
-				- [ ] 12:00 Pubblicare storia IG: promemoria corso (**_social_**)"""
+	text = template_render("corso",
+        {
+			"course_name": course_name,
+			"site_name": site_name,
+        	"month_and_half_bef": month_and_half_bef.strftime("%Y-%m-%d"),
+        	"month_before": month_before.strftime("%Y-%m-%d"),
+        	"day_tamtam": day_tamtam.strftime("%Y-%m-%d"),
+        	"three_weeks_bef": three_weeks_bef.strftime("%Y-%m-%d"),
+        	"two_weeks_bef": two_weeks_bef.strftime("%Y-%m-%d"),
+        	"week_before":  week_before.strftime("%Y-%m-%d"),
+        	"day_before": day_before.strftime("%Y-%m-%d"),
+			"days": days,
+			"servizionlineurl": "https://servizionline.polimi.it/portaleservizi/portaleservizi/controller/preferiti/Preferiti.do?evn_srv=evento&idServizio="
+		}
+    )
 
 	return text
 
@@ -234,13 +210,22 @@ def create_links(course_name: str, short_name: str, dates: list) -> str:
 	returns: links for the course
 	"""
 	year = dates[0].year
-	links = f"""Link per {course_name}:
-	Link da mettere nel QR: https://poul.org/courses/{short_name}/?mtm_campaign={short_name}{year}&mtm_kwd=manifesto
-	Link short per il manifesto: go.poul.org/{short_name}{year}
-	Link da mettere nel TamTam: https://poul.org/courses/{short_name}/?mtm_campaign={short_name}{year}&mtm_kwd=tamtam
-	Link da usare su telegram: https://poul.org/courses/{short_name}/?mtm_campaign={short_name}{year}&mtm_kwd=tg
-	Link da usare su instagram: https://poul.org/courses/{short_name}/?mtm_campaign={short_name}{year}&mtm_kwd=ig
-	Link base: https://poul.org/courses/{short_name}/
-	"""
+	links = template_render("links", {
+			"year": year,
+			"course_name": course_name,
+			"short_name": short_name
+		})
 	return links
 
+def template_render(file: str, options: dict) -> str:
+	"""Render and returns template from /templates folder.
+	file: template file
+	*args: args passed to template (jinja documentation)
+	returns: template compiled
+	"""
+	environment = Environment(loader=FileSystemLoader("templates/"))
+	template = environment.get_template(file)
+
+	text = template.render(options)
+
+	return text
