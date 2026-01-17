@@ -5,7 +5,7 @@ import os
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__)))
 from scraper import scrape_pad, get_pad_title
-from datetime import timedelta
+from datetime import timedelta, datetime
 from jinja2 import Environment, FileSystemLoader
 
 class MissingTagException(Exception):
@@ -161,6 +161,27 @@ def update_pads(urls: list, relative_path="../data") -> None:
 	for url in urls:
 		scrape_pad(url, relative_path)
 
+def get_politamtam_date(last_viable_date: datetime, file="politamtam_dates.json") -> datetime:
+	"""Gets the politamtam date from the json file.
+	args: 
+		last_viable_date: last date to consider
+		file: json file containing the politamtam dates
+	returns: politamtam date
+	"""
+	try:
+		with open(file) as f:
+			dates = json.load(f)
+
+		release_dates = sorted(dates.keys())
+		for idx in range(len(release_dates)):
+			if release_dates[idx] >= last_viable_date.strftime("%Y-%m-%d"):
+				selected_date = dates[release_dates[idx-1]]
+				break
+		return datetime.strptime(selected_date, "%Y-%m-%d")
+	except Exception as e:
+		print(f"Error getting politamtam date: {e}, falling back to a very early date")
+		return last_viable_date - timedelta(days=15)
+
 def create_pad_text(course_name: str, site_name:str, days: list) -> str:
 	"""Creates a text with the tasks for the course.
 	args: course_name: name of the course
@@ -172,17 +193,14 @@ def create_pad_text(course_name: str, site_name:str, days: list) -> str:
 	day_1 = days[0]
 
 	day_before = day_1 - timedelta(days=1)
+	three_days_bef = day_1 - timedelta(days=3)
 	week_before = day_1 - timedelta(days=7)
 	two_weeks_bef = day_1 - timedelta(days=14)
 	three_weeks_bef = day_1 - timedelta(days=21)
 	month_before = day_1 - timedelta(days=28)
 	month_and_half_bef = day_1 - timedelta(days=42)
 
-	if ((day_1 - timedelta(days=7)).day < 8):
-		day_tamtam = (day_1 - timedelta(days=20))
-		day_tamtam = day_tamtam.replace(day=25)
-	else: 
-		day_tamtam = day_1.replace(day=8)
+	day_tamtam = get_politamtam_date(three_days_bef)
 
 	text = template_render("corso",
         {
