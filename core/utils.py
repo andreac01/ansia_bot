@@ -56,7 +56,7 @@ def substitute_recipients(text: str, recipients_file="padulati.json") -> str:
 	for recipient in recipients:
 		tags = ""
 		for username in recipients.get(recipient, []):
-			tags += f"{escape_markdown(username)}"
+			tags += f"{escape_markdown(username)} "
 		if tags == "":
 			tags = f"{escape_markdown(recipient)}"
 

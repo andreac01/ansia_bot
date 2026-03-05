@@ -80,8 +80,8 @@ async def padula(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 		return
 	else:
 		group = text[1]
-		old_username = text[2]
-		new_username = text[3]
+		old_username = "@" + text[2]
+		new_username = "@" + text[3]
 		flag = False
 		if group not in padulati:
 			padulati[group] = []
@@ -448,7 +448,7 @@ def main():
 	app.add_handler(CommandHandler("help", help))
 	app.add_handler(CommandHandler("add_pad", add_pad))
 	app.add_handler(CommandHandler("remove_pad", remove_pad))
-	app.add_handler(CommandHandler("add", add_chat))
+	app.add_handler(CommandHandler("add_chat", add_chat))
 	app.add_handler(CommandHandler("remove_chat", remove_chat))
 	app.add_handler(CommandHandler("get_paduli", get_paduli))
 	app.add_handler(CommandHandler("get_pads", get_pads))
