@@ -204,8 +204,8 @@ def create_pad_text(course_name: str, site_name:str, days: list) -> str:
 
 	text = template_render("corso",
         {
-			"course_name": course_name,
-			"site_name": site_name,
+		"course_name": course_name,
+		"site_name": site_name,
         	"month_and_half_bef": month_and_half_bef.strftime("%Y-%m-%d"),
         	"month_before": month_before.strftime("%Y-%m-%d"),
         	"day_tamtam": day_tamtam.strftime("%Y-%m-%d"),
@@ -213,9 +213,9 @@ def create_pad_text(course_name: str, site_name:str, days: list) -> str:
         	"two_weeks_bef": two_weeks_bef.strftime("%Y-%m-%d"),
         	"week_before":  week_before.strftime("%Y-%m-%d"),
         	"day_before": day_before.strftime("%Y-%m-%d"),
-			"days": days,
-			"servizionlineurl": "https://servizionline.polimi.it/portaleservizi/portaleservizi/controller/preferiti/Preferiti.do?evn_srv=evento&idServizio="
-		}
+		"days": [day.strftime("%Y-%m-%d") for day in days],
+		"servizionlineurl": "https://servizionline.polimi.it/portaleservizi/portaleservizi/controller/preferiti/Preferiti.do?evn_srv=evento&idServizio="
+	}
     )
 
 	return text
