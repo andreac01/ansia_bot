@@ -80,8 +80,8 @@ async def padula(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 		return
 	else:
 		group = text[1]
-		old_username = "@" + text[2]
-		new_username = "@" + text[3]
+		old_username = "@" + text[2] if text[2] != "_" else "_"
+		new_username = "@" + text[3] if text[3] != "_" else "_"
 		flag = False
 		if group not in padulati:
 			padulati[group] = []
@@ -91,6 +91,8 @@ async def padula(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 			if new_username != "_":
 				padulati[group].append(new_username)
 			else:
+				if len(padulati[group]) == 0:
+					padulati.pop(group, None)
 				await update.message.reply_text(f"Succesfully removed {escape_markdown(old_username)}", parse_mode=parse_mode)
 		if old_username == "_":
 			if new_username in padulati[group]:
