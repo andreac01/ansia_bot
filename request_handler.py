@@ -80,31 +80,30 @@ async def padula(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 		return
 	else:
 		group = text[1]
-		old_username = "@" + text[2]
-		new_username = "@" + text[3]
-		flag = False
+		usernames = text[2:]
+
+		def append(u):
+    		return "@" + u
+
+		usernames = map(append, n)
+
 		if group not in padulati:
 			padulati[group] = []
-		if old_username in padulati[group]:
-			padulati[group].remove(old_username)
-			flag = True
-			if new_username != "_":
-				padulati[group].append(new_username)
-			else:
-				await update.message.reply_text(f"Succesfully removed {escape_markdown(old_username)}", parse_mode=parse_mode)
-		if old_username == "_":
-			if new_username in padulati[group]:
-				await update.message.reply_text(f"{escape_markdown(new_username)} already paduled", parse_mode=parse_mode)
-				return
-			padulati[group].append(new_username)
-			flag = True
-		if flag:
+
+		old_usernames = padulati[group]
+		
+		flag = counter(old_usernames) == counter(usernames)
+		reply = ""
+		
+		if has_changed:
+			padulati[group] = usernames
+			
 			json.dump(padulati, open("padulati.json", "w"), indent=4)
-			if new_username != "_":
-				await update.message.reply_text(f"Succesfully paduled {escape_markdown(new_username)}", parse_mode=parse_mode)
+			reply = f"Succesfully paduled {escape_markdown(new_username)}"
 		else:
-			reply = f"Username {escape_markdown(old_username)} not found\n\n" + get_paduli_text()
-			await update.message.reply_text(reply, parse_mode=parse_mode)
+			reply = f"{escape_markdown(new_username)} already paduled", parse_mode=parse_mode
+
+		await update.message.reply_text(reply, parse_mode=parse_mode)
 
 async def add_pad(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 	"""Add a new pad.
