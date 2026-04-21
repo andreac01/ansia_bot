@@ -16,12 +16,13 @@ class MissingTagException(Exception):
 		super().__init__(self.message)
 
 def escape_markdown(text: str) -> str:
-	"""Escape all markdown special characters found in text.
+	"""Escape all markdown special characters found in text avoiding double-escaping.
 	args: tetx: text to escape
 	returns: escaped text
 	"""
-	escape_chars = r'_[]()~`>#+-=|{}.!'
-	return ''.join(f'\\{char}' if char in escape_chars else char for char in text)
+    # Match any special char that is NOT preceded by a backslash
+	pattern = r'(?<!\\)([_*\[\]()~`>#\+\-=|{}\.!])'
+	return re.sub(pattern, r'\\\1', text)
 
 def mach_dates(text: str) -> list:
 	"""matches dates in the format - (YYYY-MM-DD) in text.

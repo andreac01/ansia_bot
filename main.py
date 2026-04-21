@@ -30,18 +30,25 @@ async def main():
 	text = create_text(today, text_today, urls) 
 	if text != "":
 		for chat_id in chat_ids:
-			await bot.send_message(chat_id=chat_id, text=text, parse_mode=parse_mode)
+			try:
+				await bot.send_message(chat_id=chat_id, text=text, parse_mode=parse_mode)
+			except Exception as e:
+				print(f"Failed to send to {chat_id}. Error: {e}")
 	# prepare text of tomorrow
 	text2 = create_text(tomorrow, text_tomorrow, urls)
 	if text2 != "":
 		for chat_id in chat_ids:
-			await bot.send_message(chat_id=chat_id, text=text2, parse_mode=parse_mode)
-	# prepare text of undone tasks
+			try:
+				await bot.send_message(chat_id=chat_id, text=text, parse_mode=parse_mode)
+			except Exception as e:
+				print(f"Failed to send to {chat_id}. Error: {e}")	# prepare text of undone tasks
 	text3 = create_text_undone(today, settings["text_undone"], urls)
 	if text3 != "":
 		for chat_id in chat_ids:
-			await bot.send_message(chat_id=chat_id, text=text3, parse_mode=parse_mode)
-
+			try:
+				await bot.send_message(chat_id=chat_id, text=text, parse_mode=parse_mode)
+			except Exception as e:
+				print(f"Failed to send to {chat_id}. Error: {e}")
 
 if __name__ == "__main__":
     asyncio.run(main())

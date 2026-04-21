@@ -1,6 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
-import time
+import re
 import os
 
 # Function to scrape content from the given URL
@@ -10,13 +10,15 @@ def scrape_pad(url: str, relative_path='../data') -> None:
 	relative_path: relative path to save the content
 	"""
 	try:
-		response = requests.get(url)
+		response = requests.get(url, timeout=10)
 		# Check if request was successful
 		if response.status_code == 200:
 			# Parse the HTML content
 			soup = BeautifulSoup(response.text, 'html.parser')
 			# Find the title of the page
-			title = str(soup.title.string.split(' - HedgeDoc')[0]).replace(' ', '_')
+			raw_title = str(soup.title.string.split(' - HedgeDoc')[0]).replace(' ', '_')
+			# Remove illegal characters for filesystems: \ / : * ? " < > |
+			title = re.sub(r'[\\/*?:"<>|]', "", raw_title)
 			# find markdown content
 			markdown = soup.find_all('div', class_='container markdown-body')
 			# Find the content (depending on the structure of the page)
@@ -39,9 +41,10 @@ def get_pad_title(url: str) -> str:
 	args: url: URL of the CodiMD pad
 	returns: title of the pad
 	"""
-	response = requests.get(url)
+	response = requests.get(url, timeout=10)
 	if response.status_code == 200:
 		soup = BeautifulSoup(response.text, 'html.parser')
-		title = str(soup.title.string.split(' - HedgeDoc')[0]).replace(' ', '_')
+		raw_title = str(soup.title.string.split(' - HedgeDoc')[0]).replace(' ', '_')
+		title = re.sub(r'[\\/*?:"<>|]', "", raw_title)
 		return title
 	return None
