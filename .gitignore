@@ -1,3 +1,8 @@
+# Stop tracking private config files
+admins.json
+padulati.json
+settings.json
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
