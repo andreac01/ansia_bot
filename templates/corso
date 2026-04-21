@@ -31,8 +31,6 @@
 	- [ ] Post Mastodon con manifesto del corso (**_social_**)
 	- [ ] Deadline design thumbnails youtube (**_designers_**)
 	- [ ] Schedulare live (**_streaming_**) (**_social_**)
-	- [ ] Schedule post telegram (12:00 del giorno del corso): promemoria corso (**_direttivo_**)
-	- [ ] Schedule post mastodon (12:00 del giorno del corso): promemoria corso (**_social_**)
 	- [ ] Peer review slides da parte dei membri della Tana (**_responsabile{{site_name}}_**) (**_direttivo_**)
 - ({{day_before}})
 	- [ ] Pubblicare storia IG: "ci vediamo domani" (**_social_**)
@@ -41,6 +39,6 @@
 {%- for line in days %}
 - ({{ line -}})
 	- [ ] Pubblicare storia IG per le 12:00: promemoria corso (**_social_**)
-	- [ ] Pubblicare messaggio telegram per le 12:00: promemoria corso (**_direttivo_**)
-	- [ ] Pubblicare messaggio mastodon per le 12:00: promemoria corso (**_social_**)
+	- [ ] Schedule post telegram per le 12:00: promemoria corso (**_direttivo_**)
+	- [ ] Schedule post mastodon per le 12:00: promemoria corso (**_social_**)
 {% endfor %}
