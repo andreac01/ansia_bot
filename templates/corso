@@ -2,7 +2,7 @@
 
 ### TODO:
 - ({{month_and_half_bef}})
-	- [ ] Elaborare proposte definitive delle date del corso (**_responsabile{site_name}_**)(**_direttivo_**) riceve e comunica a gruppo social
+	- [ ] Elaborare proposte definitive delle date del corso (**_responsabile{{site_name}}_**)(**_direttivo_**) riceve e comunica a gruppo social
 	- [ ] Richiedere aule al Poli (**_direttivo_**)
 		- Verificare necessità particolari come capienza/prese elettriche
 		- Completare richiesta su [applicativo servizi online]({{servizionlineurl}}2988)
@@ -15,7 +15,7 @@
 	- [ ] Verificare prenotazione aule sui servizi online (**_direttivo_**)
 		- Se non ci sono aule prenotate, sollecitare il poli (molto urgente)
 	- [ ] Deadline per presentare sui gruppi la bozza del manifesto, sia su gruppo manifesti che su gruppo del corso (**_designers_**) (**_responsabile{{site_name}}_**)
-	- [ ] Aggiornare pagina sul sito con aule (**sysadmin**)
+	- [ ] Aggiornare pagina sul sito con aule (**_sysadmin_**)
 - ({{day_tamtam}})
 	- [ ] compilare [Polimi App]({{servizionlineurl}}2489) (**_direttivo_**)
 - ({{three_weeks_bef}})
