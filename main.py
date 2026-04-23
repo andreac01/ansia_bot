@@ -39,14 +39,14 @@ async def main():
 	if text2 != "":
 		for chat_id in chat_ids:
 			try:
-				await bot.send_message(chat_id=chat_id, text=text, parse_mode=parse_mode)
+				await bot.send_message(chat_id=chat_id, text=text2, parse_mode=parse_mode)
 			except Exception as e:
 				print(f"Failed to send to {chat_id}. Error: {e}")	# prepare text of undone tasks
 	text3 = create_text_undone(today, settings["text_undone"], urls)
 	if text3 != "":
 		for chat_id in chat_ids:
 			try:
-				await bot.send_message(chat_id=chat_id, text=text, parse_mode=parse_mode)
+				await bot.send_message(chat_id=chat_id, text=text3, parse_mode=parse_mode)
 			except Exception as e:
 				print(f"Failed to send to {chat_id}. Error: {e}")
 
