@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Navigate to the directory containing main.py
-cd <base_directory>/ansia_bot
+cd /root/ansia_bot
 # Pull the latest changes from the remote repository
 git pull
 # Activate the virtual environment
