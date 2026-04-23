@@ -2,146 +2,109 @@
 
 ## Description
 
-A simple bot to handle pads and notify people of deadlines.
-The bot is available at https://t.me/poul_ansia_bot
-The bot is used by Politecnico Open unix Labs student association to handle deadlines related to courses.
+A Telegram bot designed to handle collaborative pads (HedgeDoc) and notify teams of upcoming and missed deadlines. The bot is actively used by the Politecnico Open unix Labs (POuL) student association to manage task tracking for their courses.
 
-The code is divided into two parts:
-- main.py: This script should be executed periodically in order to automatically sends notification with upcoming and missed deadlines. 
-- request_handler.py: This script handles all interactions with the bot, mainly aimed at adding admins, chats, pads or visualizing the current settings.
+The codebase is divided into two primary execution flows:
+* `main.py`: Executed periodically (via cron job) to scrape tracked pads and automatically send notifications about upcoming tasks (today/tomorrow) and overdue tasks to registered Telegram chats.
+* `request_handler.py`: Runs continuously to provide an interactive Telegram interface. It handles adding/removing tracked pads, managing admins, registering chats for updates, and generating standardized Markdown templates for new courses.
 
 ## Commands
 
- - /check:  check for tasks
- - /get_pads:  get the list of active pads
- - /create_pad:  create the markdown for a new pad and links for social
- - /add_pad [url_to_PUBLISHED_CodiMD]:  adds a new pad (admin required)
- - /remove_pad [url_to_PUBLISHED_CodiMD]:  removes a pad (admin required)
- - /get_paduli:  get the list of paduled people
- - /padula padulo_type [old_paduled_username] [new_paduled_username]:  padules a new person (admin required)
- - /add_chat:  add current chat id to update list
- - /remove_chat:  removes current chat id from update list (admin required)
- - /add_admin [tg_username]:  adds a new admin (admin required)
- - /info:  get info about the current chat id and user id
- - /help:  get this message
- - /start:  get this message
+* `/start` or `/help`: Display the help message with available commands.
+* `/check`: Manually trigger a check for tasks and send notifications to the current chat.
+* `/get_pads`: View the list of currently active tracked pads.
+* `/create_pad`: Start an interactive wizard to generate the Markdown boilerplate for a new course pad and its social media links.
+* `/add_pad [url]`: Add a new published CodiMD/HedgeDoc pad to the tracking list *(Admin required)*.
+* `/remove_pad [url]`: Remove a pad from the tracking list *(Admin required)*.
+* `/get_paduli`: View the list of "paduled" people (assigned roles/users).
+* `/padula [role] [old_username] [new_username]`: Reassign a role to a new user. Use `_` as a dummy user to add/remove without replacement *(Admin required)*.
+* `/add_chat`: Register the current chat to receive daily automatic update notifications *(Admin required)*.
+* `/remove_chat`: Unregister the current chat from receiving daily updates *(Admin required)*.
+* `/add_admin [tg_username]`: Grant admin privileges to a new user *(Admin required)*.
 
-## Files organization
+## File Organization
 
-ansia_bot/  			~ root <br>
-├── admins.json 	~ contains the list of admins (to be filled)  <br>
-├── core  				~ contains code utilities <br>
-│   ├── scraper.py  	~ handles updates and scraping of pads hosted on pad.poul.org <br>
-│   └── utils.py  		~ miscellanea of most function to handle data and text generation <br>
-├── data 				~ contains local copies of the traced pads <br>
-│   └──  <br>
-├── main.py 			~ send notifications to all traced chats when executed <br>
-├── main.sh  			~ used to execute main via a cronjob <br>
-├── padulati.json  		~ list of roles and people people to tag (to be filled) <br> 
-├── README.md  			~ this file <br>
-├── requirements.txt  	~ python dependecies  <br>
-├── request_handler.py	~ handler of the telegram interface  <br>
-└── settings.json		~ settings of the bot (to be filled) <br>
-
-## setup
-
-In order to use the following bot follows these steps
-
-### 0. Create a bot
-
-Using @BotFather you can create a telegram bot. The open settings.json and add its unique token under the "token" key of the json.
-
-If you are a memeber of POuL you can directly ask me the token of @poul_ansia_bot and skip this step.
-
-### 1. Clone the repository
-
-Clone the repository on your device move to your designated <base_directory> with the following command:
-
-`git clone https://github.com/andreac01/ansia_bot.git`
-
-In settings.json you should place your bot token. 
-
-In main.sh you should properly set <base_directory>
-
-### 2. Environment
-
-In order to function out of the box it is assumed that the host has a properly configured virual environment. In order to do so run the following commands:
-
-```
-mkdir ~/.venv &&
-cd ~/.venv &&
-python3 -m venv telegram_venv &&
-source ./telegram_venv/bin/activate &&
-cd <base_directory>/ansia_bot &&
-pip install -r requirements.txt
+```text
+ansia_bot/
+├── admins.json                # List of bot admins (Telegram usernames)
+├── auto_update.sh             # Script to pull git updates and restart the bot
+├── core/                      # Core logic and utilities
+│   ├── scraper.py             # Scrapes HedgeDoc/CodiMD pads
+│   └── utils.py               # Data processing, text generation, and Jinja2 rendering
+├── data/                      # Local cached copies of the traced markdown pads
+├── deployment/                # Docker deployment files
+│   ├── docker-compose.yml     # Docker Compose configuration
+│   ├── Dockerfile             # Docker image build instructions
+│   └── entrypoint.sh          # Container entrypoint and service initialization
+├── main.py                    # Script to broadcast daily notifications
+├── main.sh                    # Shell wrapper to execute main.py via cron
+├── padulati.json              # List of roles and tagged users for templates
+├── politamtam_dates.json      # Timetable configuration for PoliTamTam releases
+├── README.md                  # This file
+├── request_handler.py         # Main Telegram bot interface loop
+├── requirements.txt           # Python dependencies
+├── settings.json              # Bot configuration (Token, tracked URLs, chat IDs)
+└── templates/                 # Jinja2 templates
+    ├── corso                  # Template for course task lists
+    └── links                  # Template for generated course links
 ```
 
-Remember to change <base_directory> properly, you may also want to change ~/.venv path to your liking, remember to also apply the changes in `autoupdate.sh` and `main.sh`.
+## Setup & Deployment
 
-### 3. Run bot interface
+Before starting, message [@BotFather](https://t.me/botfather) on Telegram to create a bot and get your unique Bot Token.
+If you are a POuL member you can ask @andrea_cer for the current token.
 
-#### 3.a plain implementation
+### Method 1: Docker (Recommended)
 
-After having configured the environment we can run the main interactive interface of the bot. To properly do so run the following commands:
+The easiest way to deploy the bot is via Docker Compose. The provided configuration automatically sets up the Python environment, dependencies, and internal cron jobs for daily notifications.
 
-```
-nohup python3 request_handler.py &
-```
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/andreac01/ansia_bot.git
+   cd ansia_bot
+   ```
+2. **Configure your settings:**
+   Edit `settings.json` and insert your Bot Token under the `"token"` key. Ensure your Telegram username is listed in `admins.json`.
+3. **Start the container:**
+   ```bash
+   cd deployment
+   docker-compose up -d --build
+   ```
+   *Note: The `docker-compose.yml` automatically mounts your local JSON configuration files and the `data/` directory into the container, ensuring persistent state across restarts.*
 
-nohup ensures that the program will run even after disconnection and & discards outputs.
+### Method 2: Manual Local Setup
 
-#### 3.b daily check for changes on repository
-To periodically pull from the github repository any change. Run:
-```
-crontab -e
-```
-Then add this entry at the end of the file that will open
+If you prefer running the bot natively on your host machine:
 
-`0 4 * * * <base_directory>/ansia_bot/auto_update.sh`
+1. **Clone and setup the virtual environment:**
+   ```bash
+   git clone https://github.com/andreac01/ansia_bot.git
+   cd ansia_bot
+   mkdir -p ~/.venv
+   python3 -m venv ~/.venv/telegram_venv
+   source ~/.venv/telegram_venv/bin/activate
+   pip install --upgrade pip
+   pip install -r requirements.txt
+   ```
+2. **Configure Settings:**
+   Add your token to `settings.json` and your username to `admins.json`. Update the paths inside `main.sh` and `auto_update.sh` to match your local repository location.
+   Now they point to `/root/ansia_bot` to match the location inside the docker container.
+3. **Run the interactive bot:**
+   ```bash
+   nohup python3 request_handler.py > nohup.out 2>&1 &
+   ```
+4. **Set up Cron Jobs:**
+   To enable automatic updates and daily notifications, add the following to your crontab (`crontab -e`):
+   ```cron
+   # Daily git pull and bot restart
+   0 4 * * * /absolute/path/to/ansia_bot/auto_update.sh
+   # Daily notification broadcast
+   0 8 * * * /absolute/path/to/ansia_bot/main.sh
+   ```
 
-Remember to change <base_directory> properly
+## Workflow & Important Notes
 
-### 4. Daily update message
-
-To periodically execute the main function a crontab is needed. Run:
-```
-crontab -e
-```
-Then add this entry at the end of the file that will open
-
-`0 8 * * * <base_directory>/ansia_bot/main.sh`
-
-Remember to change <base_directory> properly
-
-### 5. Padula and set admins
-
-First of all you will need to add yourself as an admin. To do so add your username to the admins.json file.
-
-All later modifications can be done through the telegra interface of the bot.
-
-## Remember to:
-
-1. Add the token in settings.json (via editor)
-2. Add admins in admins.json (via telegram)
-3. Add direttivo and social representatives in padulati.json (via telegram)
-4. Add the chat you want to update using (via telegram)
-5. Add all the pads (via telegram)
-6. Always publish the pads and create them as editable (via pad.poul.org)
-
-
-## Implementation notes:
-
-The code is divided into two main parts: 
-- request_handler.py: handles all interactions with the bot, mainly aimed at adding admins, chats, pads or visualizing the current settings.
-- main.py: sends notifications to all traced chats (automatic notification)
-
-Additionally there are the two folders:
-- core: contains code utilities:
-  - scraper.py: handles updates and scraping of pads hosted on pad.poul.org and added via the telegram bot interface
-  - utils.py: miscellanea of most function to handle data and text generation. Here are all general functions that are used to parse the pad for particular informations.
-- data: a folder containing local copies of the traced pads. Old pads are automatically deleted, while new pads are added by the scraper once they are added to the list of pads to be traced.
-  
-Finally there are the json files used to store settings or informations:
-- admins.json: contains the list of admins that are user that can add the bot to chat and add new pads
-- padulati.json: contains the list of roles and people people to tag
-- settings.json: contains some settings of the bot, such as the token of the bot and the list of chats to update
+1. **Initial Access:** Start the bot in Telegram. Ensure your username is in `admins.json` so you can use the `/add_chat` and `/add_pad` commands.
+2. **Register Chats:** Add the bot to your target group chat and run `/add_chat` to register it for automated daily summaries.
+3. **Track Pads:** HedgeDoc pads MUST be **Published** as **Editable** for the scraper to successfully read them. Add the published link using `/add_pad`.
+4. **Roles/Padulati:** Keep `padulati.json` updated via the `/padula` command so the template generator correctly tags the responsible team members.
