@@ -1,5 +1,6 @@
 import json
 import os
+import re
 from datetime import datetime, timedelta
 from telegram import Update
 from telegram.ext import (
@@ -24,6 +25,13 @@ def clear_data_folder() -> None:
 	for file in os.listdir("data"):
 		os.remove("data/" + file)
 
+def is_valid_telegram_username(username: str) -> bool:
+    """Checks if a username strictly follows Telegram's rules or is the dummy '_'."""
+    if username == "_":
+        return True
+    # Strip the @ if it's there for the check
+    clean_name = username.lstrip('@')
+    return bool(re.match(r'^[a-zA-Z0-9_]{5,32}$', clean_name))
 
 def get_paduli_text() -> str:
 	"""Get the list of the paduled people.
@@ -82,6 +90,9 @@ async def padula(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 		group = text[1]
 		old_username = "@" + text[2] if text[2] != "_" else "_"
 		new_username = "@" + text[3] if text[3] != "_" else "_"
+		if not is_valid_telegram_username(new_username):
+			await update.message.reply_text("Invalid Telegram username format.")
+			return
 		flag = False
 		if group not in padulati:
 			padulati[group] = []
@@ -248,7 +259,9 @@ async def add_admin(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 		return
 	else:
 		username = text[1]
-
+		if not is_valid_telegram_username(username):
+			await update.message.reply_text("Invalid Telegram username format.")
+			return
 		admins = json.load(open("admins.json"))
 		if username in admins:
 			await update.message.reply_text("User already admin", parse_mode=parse_mode)

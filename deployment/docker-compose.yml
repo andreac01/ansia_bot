@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  ansia_bot:
+    build:
+      context: ..                          # Tell Docker to look at the root folder
+      dockerfile: deployment/Dockerfile    # Tell Docker where the Dockerfile is
+    container_name: ansia_bot_container
+    restart: unless-stopped
+    environment:
+      - TZ=Europe/Rome
+    volumes:
+      # Paths are relative to where the docker-compose.yml file lives
+      - ../data:/root/ansia_bot/data
+      - ../settings.json:/root/ansia_bot/settings.json
+      - ../admins.json:/root/ansia_bot/admins.json
+      - ../padulati.json:/root/ansia_bot/padulati.json
+      - ../politamtam_dates.json:/root/ansia_bot/politamtam_dates.json
