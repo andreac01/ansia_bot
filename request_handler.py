@@ -13,7 +13,7 @@ from telegram.ext import (
     filters, 
 )
 from core.scraper import scrape_pad, get_pad_title
-from core.utils import create_text, update_pads, create_text_undone, escape_markdown, create_pad_text, create_links
+from core.utils import create_text, update_pads, create_text_undone, escape_markdown, create_pad_text, create_links, OutdatedTamTamDatesError
 
 with open("settings.json") as settings_file:
 	settings = json.load(settings_file)
@@ -65,8 +65,9 @@ def check_admin(update: Update) -> bool:
 	args: update: telegram update
 	returns: True if the user is an admin, False otherwise
 	"""
+	user = update.message.from_user.username
 	usernames = json.load(open("admins.json"))
-	if update.message.from_user.username in usernames:
+	if user in usernames and user is not None:
 		return True
 	else:
 		return False
@@ -113,7 +114,8 @@ async def padula(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 			padulati[group].append(new_username)
 			flag = True
 		if flag:
-			json.dump(padulati, open("padulati.json", "w"), indent=4)
+			with open("padulati.json", "w") as f:
+				json.dump(padulati, f, indent=4)
 			if new_username != "_":
 				await update.message.reply_text(f"Succesfully paduled {escape_markdown(new_username)}", parse_mode=parse_mode)
 		else:
@@ -148,7 +150,8 @@ async def add_pad(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 		urls = settings["urls"]
 		urls.append(url)
 		settings["urls"] = urls
-		json.dump(settings, open("settings.json", "w"), indent=4)
+		with open("settings.json", "w") as f:
+			json.dump(settings, f, indent=4)
 		await update.message.reply_text("Pad added succesfully", parse_mode=parse_mode)
 
 async def remove_pad(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -175,7 +178,8 @@ async def remove_pad(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
 		if url in urls:
 			urls.remove(url)
 			settings["urls"] = urls
-			json.dump(settings, open("settings.json", "w"), indent=4)
+			with open("settings.json", "w") as f:
+				json.dump(settings, f, indent=4)
 			clear_data_folder()
 			update_pads(urls)
 			await update.message.reply_text("Pad removed succesfully", parse_mode=parse_mode)
@@ -202,7 +206,8 @@ async def add_chat(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 		return
 	chat_ids.append(chatid)
 	settings["chat_ids"] = chat_ids
-	json.dump(settings, open("settings.json", "w"), indent=4)
+	with open("settings.json", "w") as f:
+		json.dump(settings, f, indent=4)
 	await update.message.reply_text("Chat added succesfully", parse_mode=parse_mode)
 
 async def remove_chat(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -221,7 +226,8 @@ async def remove_chat(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
 	if chatid in chat_ids:
 		chat_ids.remove(chatid)
 		settings["chat_ids"] = chat_ids
-		json.dump(settings, open("settings.json", "w"), indent=4)
+		with open("settings.json", "w") as f:
+			json.dump(settings, f, indent=4)
 		await update.message.reply_text("Chat removed succesfully", parse_mode=parse_mode)
 	else:
 		await update.message.reply_text(f"Chatid {chatid} not found", parse_mode=parse_mode)
@@ -268,7 +274,8 @@ async def add_admin(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 			await update.message.reply_text("User already admin", parse_mode=parse_mode)
 			return
 		admins.append(username)
-		json.dump(admins, open("admins.json", "w"), indent=4)
+		with open("admins.json", "w") as f:
+			json.dump(admins, f, indent=4)
 		await update.message.reply_text("Admin added succesfully", parse_mode=parse_mode)
 
 async def check(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -397,16 +404,20 @@ async def create_text_for_pad(update: Update, context: ContextTypes.DEFAULT_TYPE
 
 	padulati = json.load(open("padulati.json"))
 	padulati["responsabile" + site_name] = [context.user_data['padulato']]
-	json.dump(padulati, open("padulati.json", "w"), indent=4)
-
+	with open("padulati.json", "w") as f:
+		json.dump(padulati, f, indent=4)
 	if update.message.text.lower().replace(" ", "").replace("\n", "") in confirmations:
 		text = f"*Markdown pad to load and publish as \"editable\" on {base_url}/{site_name} :*"
 		await update.message.reply_text(text, parse_mode=parse_mode)
 		for ids, date in enumerate(context.user_data['dates']):
 			context.user_data['dates'][ids] = datetime.strptime(date, "%Y %m %d")
-			
-		text = create_pad_text(context.user_data['course_name'], site_name, context.user_data['dates'])
-		await update.message.reply_text(text)
+		
+		try:
+			text = create_pad_text(context.user_data['course_name'], site_name, context.user_data['dates'])
+			await update.message.reply_text(text)
+		except OutdatedTamTamDatesError as e:
+			await update.message.reply_text(e.body)
+			await update.message.reply_text(e.message)
 
 		text = create_links(context.user_data['course_name'], site_name, context.user_data['dates'])
 		await update.message.reply_text(text)

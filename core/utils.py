@@ -1,19 +1,17 @@
-from __future__ import generators
 import re
 import json
 import os
-import sys
-sys.path.append(os.path.join(os.path.dirname(__file__)))
-from scraper import scrape_pad, get_pad_title
+from core.scraper import scrape_pad, get_pad_title
 from datetime import timedelta, datetime
 from jinja2 import Environment, FileSystemLoader
 
-class MissingTagException(Exception):
-	"""Exception raised when a tag is missing in the recipients file."""
-	def __init__(self, missing_tags):
-		self.missing_tags = missing_tags
-		self.message = f"Missing tags: {missing_tags}"
-		super().__init__(self.message)
+
+class OutdatedTamTamDatesError(Exception):
+	"""Exception raised when no valid PoliTamTam date is found."""
+	def __init__(self, message: str, body: str = ""):
+		super().__init__(message)
+		self.message = message
+		self.body = body
 
 def escape_markdown(text: str) -> str:
 	"""Escape all markdown special characters found in text avoiding double-escaping.
@@ -152,9 +150,10 @@ def create_text_undone(date: str, base_text: str, urls: list) -> str:
 		return ""
 	return text
 
-def update_pads(urls: list, relative_path="../data") -> None:
-	"""Updates the pads with the latest information. By scraping the data from the urls.
+async def update_pads(urls: list, relative_path="../data") -> None:
+	"""Updates the pads with the latest information. By scraping the data from the urls. 
 	args: urls: list of urls to scrape
+	relative_path: where to save and find pads
 	"""
 	data_dir = os.path.join(os.path.dirname(__file__), relative_path)
 	for file in os.listdir(data_dir):
@@ -169,19 +168,17 @@ def get_politamtam_date(last_viable_date: datetime, file="politamtam_dates.json"
 		file: json file containing the politamtam dates
 	returns: politamtam date
 	"""
-	try:
-		with open(file) as f:
-			dates = json.load(f)
+	with open(file) as f:
+		dates = json.load(f)
 
-		release_dates = sorted(dates.keys())
-		for idx in range(len(release_dates)):
-			if release_dates[idx] >= last_viable_date.strftime("%Y-%m-%d"):
-				selected_date = dates[release_dates[idx-1]]
-				break
-		return datetime.strptime(selected_date, "%Y-%m-%d")
-	except Exception as e:
-		print(f"Error getting politamtam date: {e}, falling back to a very early date")
-		return last_viable_date - timedelta(days=15)
+	release_dates = sorted(dates.keys())
+	for idx in range(len(release_dates)):
+		if release_dates[idx] >= last_viable_date.strftime("%Y-%m-%d"):
+			selected_date = dates[release_dates[idx-1]]
+			return datetime.strptime(selected_date, "%Y-%m-%d")
+	print(f"Error while getting politamtam date.")
+	raise OutdatedTamTamDatesError(message="Le date in politamtam_dates.json per la compilazione della PoliMi App non sono più valide!")
+
 
 def create_pad_text(course_name: str, site_name:str, days: list) -> str:
 	"""Creates a text with the tasks for the course.
@@ -201,7 +198,13 @@ def create_pad_text(course_name: str, site_name:str, days: list) -> str:
 	month_before = day_1 - timedelta(days=28)
 	month_and_half_bef = day_1 - timedelta(days=42)
 
-	day_tamtam = get_politamtam_date(three_days_bef)
+	error = None
+	try:
+		day_tamtam = get_politamtam_date(three_days_bef)
+	except OutdatedTamTamDatesError as e:
+		day_tamtam = two_weeks_bef
+		error = e.message
+		
 
 	text = template_render("corso",
         {
@@ -219,6 +222,9 @@ def create_pad_text(course_name: str, site_name:str, days: list) -> str:
 	}
     )
 
+	if error:
+		raise OutdatedTamTamDatesError(message=str(error), body=text)
+	
 	return text
 
 def create_links(course_name: str, short_name: str, dates: list) -> str:
