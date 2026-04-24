@@ -90,7 +90,7 @@ def find_tasks_and_dates(text: str, return_done=False) -> dict:
 				date_to_task[date] += list(tasks)
 	return date_to_task
 
-def create_text(date: str, base_text: str, urls: list) -> str:
+async def create_text(date: str, base_text: str, urls: list) -> str:
 	"""Creates a text with the tasks of the day.
 	args: date: date to search for tasks
 	base_text: text to append the tasks to
@@ -110,7 +110,8 @@ def create_text(date: str, base_text: str, urls: list) -> str:
 					tasks = list(tasks_and_dates[deadline])
 					if texts.get(file, None) == None and len(tasks) > 0:
 						for url in urls:
-							if file.split('.')[0] == get_pad_title(url):
+							title = await get_pad_title(url)
+							if file.split('.')[0] == title:
 								texts[file] = "\n\n*" + file.split('.')[0].replace("_", " ") + "* [link 🔗](" + url + ")"
 					for task in tasks:
 						texts[file] += "\n\n" + task.replace("- [ ]", "\u2757")
@@ -120,7 +121,7 @@ def create_text(date: str, base_text: str, urls: list) -> str:
 		return ""
 	return text
 
-def create_text_undone(date: str, base_text: str, urls: list) -> str:
+async def create_text_undone(date: str, base_text: str, urls: list) -> str:
 	"""Creates a text with the task that were not completed before date.
 	args: date: last date to search for tasks
 	base_text: text to append the tasks to
@@ -139,7 +140,8 @@ def create_text_undone(date: str, base_text: str, urls: list) -> str:
 					tasks = list(tasks_and_dates[deadline])
 					if texts.get(file, None) == None and len(tasks) > 0:
 						for url in urls:
-							if file.split('.')[0] == get_pad_title(url):
+							title = await get_pad_title(url)
+							if file.split('.')[0] == title:
 								texts[file] = "\n\n*" + file.split('.')[0].replace("_", " ") + "* [link 🔗](" + url + ")"
 					for task in tasks:
 						texts[file] += "\n\n" + task.replace("- [ ]", "\u2757")
@@ -159,7 +161,7 @@ async def update_pads(urls: list, relative_path="../data") -> None:
 	for file in os.listdir(data_dir):
 		os.remove(data_dir + "/" + file)
 	for url in urls:
-		scrape_pad(url, relative_path)
+		await scrape_pad(url, relative_path)
 
 def get_politamtam_date(last_viable_date: datetime, file="politamtam_dates.json") -> datetime:
 	"""Gets the politamtam date from the json file.

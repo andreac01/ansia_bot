@@ -47,7 +47,7 @@ def get_paduli_text() -> str:
 		reply += "\n"
 	return reply
 
-def get_urls_text() -> str:
+async def get_urls_text() -> str:
 	"""Get the list of the active pads.
 	returns: text with the active pads
 	"""
@@ -56,7 +56,8 @@ def get_urls_text() -> str:
 	urls = settings["urls"]
 	reply = "Currently active pads:\n"
 	for url in urls:
-		title = escape_markdown(get_pad_title(url))
+		title = await get_pad_title(url)
+		title = escape_markdown(title)
 		reply += f"{title}: {url}\n"
 	return reply
 
@@ -135,13 +136,13 @@ async def add_pad(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 	text = text.split(" ")
 	if len(text) != 2:
 		reply = "Usage: /add\\_pad \\[url\\_to\\_PUBLISHED\\_CodiMD]\n\n"
-		reply += get_urls_text()
+		reply += await get_urls_text()
 		await update.message.reply_text(reply, parse_mode=parse_mode)
 		return
 	else:
 		url = text[1]
 		try:
-			scrape_pad(url)
+			await scrape_pad(url)
 		except Exception as e:
 			await update.message.reply_text(f"Error: {escape_markdown(e)}\n\nTry to check the url", parse_mode=parse_mode)
 			return
@@ -167,7 +168,7 @@ async def remove_pad(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
 	text = text.split(" ")
 	if len(text) != 2:
 		reply = "Usage: /remove\\_pad \\[url\\_to\\_PUBLISHED\\_CodiMD]\n\n"
-		reply += get_urls_text()
+		reply += await get_urls_text()
 		await update.message.reply_text(reply, parse_mode=parse_mode)
 		return
 	else:
@@ -181,10 +182,10 @@ async def remove_pad(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
 			with open("settings.json", "w") as f:
 				json.dump(settings, f, indent=4)
 			clear_data_folder()
-			update_pads(urls)
+			await update_pads(urls)
 			await update.message.reply_text("Pad removed succesfully", parse_mode=parse_mode)
 		else:
-			reply = f"Url {url} not found\n\n" + get_urls_text()
+			reply = f"Url {url} not found\n\n" + await get_urls_text()
 			await update.message.reply_text(reply, parse_mode=parse_mode)
 
 async def add_chat(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -247,7 +248,7 @@ async def get_pads(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 	context: telegram context
 	returns: None
 	"""
-	reply = get_urls_text()
+	reply = await get_urls_text()
 	await update.message.reply_text(reply, parse_mode=parse_mode)
 
 async def add_admin(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -296,9 +297,9 @@ async def check(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 	tomorrow = (datetime.now(ZoneInfo("Europe/Rome")) + timedelta(days=1)).strftime("%Y-%m-%d")
 
 	# update pads
-	update_pads(urls)
+	await update_pads(urls)
 	# prepare text of today
-	text = create_text(today, text_today, urls) + "\n\n\n\n" + create_text(tomorrow, text_tomorrow, urls) + "\n\n\n\n" + create_text_undone(today, text_undone, urls)
+	text = await create_text(today, text_today, urls) + "\n\n\n\n" + await create_text(tomorrow, text_tomorrow, urls) + "\n\n\n\n" + await create_text_undone(today, text_undone, urls)
 	if text == "\n\n\n\n\n\n\n\n":
 		await update.message.reply_text("No pending tasks found", parse_mode=parse_mode)
 		return
