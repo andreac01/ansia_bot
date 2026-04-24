@@ -11,6 +11,7 @@ RUN apt-get update && apt-get install -y \
 
 # Force the container to use Rome time
 ENV TZ="Europe/Rome"
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 WORKDIR /root/ansia_bot
 

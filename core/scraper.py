@@ -1,16 +1,17 @@
-import requests
+import httpx
 from bs4 import BeautifulSoup
 import re
 import os
 
 # Function to scrape content from the given URL
-def scrape_pad(url: str, relative_path='../data') -> None:
+async def scrape_pad(url: str, relative_path='../data') -> None:
 	"""Scrape the content of a CodiMD pad and save it to a file.
 	args: url: URL of the CodiMD pad
 	relative_path: relative path to save the content
 	"""
 	try:
-		response = requests.get(url, timeout=10)
+		async with httpx.AsyncClient() as client:
+			response = await client.get(url, timeout=10)
 		# Check if request was successful
 		if response.status_code == 200:
 			# Parse the HTML content
@@ -36,12 +37,13 @@ def scrape_pad(url: str, relative_path='../data') -> None:
 	except Exception as e:
 		print(f"An error occurred during: {e}")
 
-def get_pad_title(url: str) -> str:
+async def get_pad_title(url: str) -> str:
 	"""Get the title of a CodiMD pad.
 	args: url: URL of the CodiMD pad
 	returns: title of the pad
 	"""
-	response = requests.get(url, timeout=10)
+	async with httpx.AsyncClient() as client:
+		response = await client.get(url, timeout=10)
 	if response.status_code == 200:
 		soup = BeautifulSoup(response.text, 'html.parser')
 		raw_title = str(soup.title.string.split(' - HedgeDoc')[0]).replace(' ', '_')

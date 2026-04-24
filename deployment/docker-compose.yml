@@ -5,8 +5,12 @@ services:
     build:
       context: ..                          # Tell Docker to look at the root folder
       dockerfile: deployment/Dockerfile    # Tell Docker where the Dockerfile is
+      network: host                        # Use Network host during build
     container_name: ansia_bot_container
     restart: unless-stopped
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
     environment:
       - TZ=Europe/Rome
     volumes:

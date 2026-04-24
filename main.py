@@ -1,5 +1,6 @@
 import json
 from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
 from core.utils import create_text, update_pads, create_text_undone
 import telegram
 import asyncio
@@ -9,7 +10,7 @@ import asyncio
 async def main():
 	"""Main function to update the pads and send the messages to the chat_ids."""
 	# Debug time
-	print(f"Main function started at {datetime.now()}")
+	print(f"Main function started at {datetime.now(ZoneInfo("Europe/Rome"))}")
 	
 	# Load settings
 	settings = json.load(open("settings.json"))
@@ -21,13 +22,13 @@ async def main():
 	urls = settings["urls"]
 
 	# get dates
-	today = datetime.now().strftime("%Y-%m-%d")
-	tomorrow = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
+	today = datetime.now(ZoneInfo("Europe/Rome")).strftime("%Y-%m-%d")
+	tomorrow = (datetime.now(ZoneInfo("Europe/Rome")) + timedelta(days=1)).strftime("%Y-%m-%d")
 
 	# update pads
-	update_pads(urls)
+	await update_pads(urls)
 	# prepare text of today
-	text = create_text(today, text_today, urls) 
+	text = await create_text(today, text_today, urls) 
 	if text != "":
 		for chat_id in chat_ids:
 			try:
@@ -35,14 +36,14 @@ async def main():
 			except Exception as e:
 				print(f"Failed to send to {chat_id}. Error: {e}")
 	# prepare text of tomorrow
-	text2 = create_text(tomorrow, text_tomorrow, urls)
+	text2 = await create_text(tomorrow, text_tomorrow, urls)
 	if text2 != "":
 		for chat_id in chat_ids:
 			try:
 				await bot.send_message(chat_id=chat_id, text=text2, parse_mode=parse_mode)
 			except Exception as e:
 				print(f"Failed to send to {chat_id}. Error: {e}")	# prepare text of undone tasks
-	text3 = create_text_undone(today, settings["text_undone"], urls)
+	text3 = await create_text_undone(today, settings["text_undone"], urls)
 	if text3 != "":
 		for chat_id in chat_ids:
 			try:
