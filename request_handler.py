@@ -2,6 +2,7 @@ import json
 import os
 import re
 from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
 from telegram import Update
 from telegram.ext import (
 	ApplicationBuilder,
@@ -284,8 +285,8 @@ async def check(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 	parse_mode = settings["parse_mode"]
 	urls = settings["urls"]
 	# get dates
-	today = datetime.now().strftime("%Y-%m-%d")
-	tomorrow = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
+	today = datetime.now(ZoneInfo("Europe/Rome")).strftime("%Y-%m-%d")
+	tomorrow = (datetime.now(ZoneInfo("Europe/Rome")) + timedelta(days=1)).strftime("%Y-%m-%d")
 
 	# update pads
 	update_pads(urls)
@@ -483,7 +484,7 @@ def main():
 
 	
 	# Debug time
-	print(f"Request handler function started at {datetime.now()}")
+	print(f"Request handler function started at {datetime.now(ZoneInfo("Europe/Rome"))}")
 
 	# Start polling for updates
 	app.run_polling()

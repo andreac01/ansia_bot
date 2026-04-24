@@ -1,5 +1,6 @@
 import json
 from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
 from core.utils import create_text, update_pads, create_text_undone
 import telegram
 import asyncio
@@ -9,7 +10,7 @@ import asyncio
 async def main():
 	"""Main function to update the pads and send the messages to the chat_ids."""
 	# Debug time
-	print(f"Main function started at {datetime.now()}")
+	print(f"Main function started at {datetime.now(ZoneInfo("Europe/Rome"))}")
 	
 	# Load settings
 	settings = json.load(open("settings.json"))
@@ -21,8 +22,8 @@ async def main():
 	urls = settings["urls"]
 
 	# get dates
-	today = datetime.now().strftime("%Y-%m-%d")
-	tomorrow = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
+	today = datetime.now(ZoneInfo("Europe/Rome")).strftime("%Y-%m-%d")
+	tomorrow = (datetime.now(ZoneInfo("Europe/Rome")) + timedelta(days=1)).strftime("%Y-%m-%d")
 
 	# update pads
 	update_pads(urls)
